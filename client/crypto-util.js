@@ -105,10 +105,15 @@ function nextPrime(p) { // returns the next prime > p
     }
 }
 
-// from generator.html
-
+/* This is an adaptation of prime() function from ebusiness
+ * generator.htm, which returns the Nth prime, where index zero is
+ * two.
+ */
 function primeAt(index){
-    index--;
+    if(index == 0) {
+        return 2
+    }
+    index--; // Primes starts with 3, not 2
     var n = Primes.length
     if(index < n) {
         return Primes[index]
