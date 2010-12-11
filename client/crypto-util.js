@@ -22,6 +22,53 @@
  */
 
 
+            //////////////////////////////////////////////
+            ////    Arbitrary precision arithmetic    ////
+            //////////////////////////////////////////////
+
+bs = 28                         // base: 0x1C
+bx2 = 1 << bs                   // e.g.: 0x1000,0000
+bm = bx2 - 1                    // mask:  0xFFF,FFFF
+bx = bx2 >> 1                   // 0x800,0000
+bd = bs >> 1                    // 0xE
+bdm = (1 << bd) - 1             // 0x3FFF
+log2 = Math.log(2)
+
+/* Produce i mod m, where m < 2^bd */
+function simplemod(i, m) {
+    if(m>bdm)
+        throw new Error("simplemod: divisor "+ m)
+    var c=0, v
+    for(var n=i.length-1; n>=0; n--) {
+        v=i[n]
+        c=((v >> bd) + (c<<bd)) % m
+        c=((v & bdm) + (c<<bd)) % m
+    }
+    return c
+}
+
+/* Return 1 if a == b.  Array equality in JS is by reference, so we
+ * need to iterate.
+ */
+function beq(a,b) { // returns 1 if a == b
+    if(a.length != b.length) return 0
+    for(var n=a.length-1; n>=0; n--)
+        if(a[n] != b[n]) return 0
+    return 1
+}
+
+/* Return a power of 2 as a bigint. */
+function bpow2(pow) {
+    var r=[], n, m=Math.floor(pow/bs)
+    for(n=m-1; n>=0; n--) r[n]=0;
+    r[m]= 1<<(pow % bs)
+    return r
+}
+
+function ror(a,n) {n&=7; return n?((a>>n) | ((a<<(8-n))&255)):a;}
+
+
+
             /////////////////////////////
             ////    Prime numbers    ////
             /////////////////////////////
@@ -124,4 +171,155 @@ function primeAt(index){
         n++
     }
     return lp
+}
+
+/* Return a factor of n if n is divisible by a prime less than max,
+ * else return 0.
+ */
+function divisible(n,max) {
+    if((n[0] & 1) == 0) return 2
+    for(c=0; c<Primes.length; c++) {
+        if(Primes[c] >= max) return 0
+        if(simplemod(n,Primes[c])==0)
+            return Primes[c]
+    }
+    c=Primes[Primes.length-1]
+    for(;;) {
+        c=nextPrime(c)
+        if(c >= max) return 0
+        if(simplemod(n,c)==0)
+            return c
+    }
+}
+
+
+            //////////////////////////////
+            ////    Random numbers    ////
+            //////////////////////////////
+
+pool = []
+TARGET = 1024
+rp = []
+rs = randJS(256)
+rx = 0
+ry = 0
+bits = 0
+nbits = 0
+
+function randJS(n) {
+    return Math.floor(Math.random()*n)
+}
+
+function eventEntropy(e) {
+    if(pool.length < TARGET) {
+        var x = e.clientX || e.screenX || e.pageX || 1
+        var y = e.clientY || e.screenY || e.pageY || 1
+        var t = new Date().getTime()
+        var s = t + primeAt(46)*x + primeAt(45)*y
+        pool[pool.length] = s % 256
+    }
+}
+
+function randInit() {
+    if(pool.length < TARGET)
+        throw new Error("Not enough entropy in pool yet.")
+    var x, y, t
+    for(x = 0; x < 256; x++) rp[x] = x;
+    y = 0
+    for(x = 0; x < 256; x++) {
+        y = (pool[x] + rp[x] + y) % 256
+        t = rp[x]; rp[x] = rp[y]; rp[y] = t
+    }
+    rs = randJS(256)
+    rx = ry = 0
+}
+
+function randByte() {
+    // this first bit is basically RC4
+    rx = ++rx & 255;
+    ry = (rp[rx] + ry) & 255;
+    var t = rp[rx]; rp[rx] = rp[ry]; rp[ry]=t;
+    rs ^= rp[(rp[rx] + rp[ry]) & 255];
+    rs ^= randJS(256)
+    rs ^= ror(pool[randJS(pool.length)], randJS(8))
+    rs ^= ror(pool[randJS(pool.length)], randJS(8))
+    return rs;
+}
+
+function randBit() {
+    if(!nbits) {
+        nbits = 8
+        bits = randByte()
+    }
+    nbits--
+    var r = bits & 1
+    bits >>= 1
+    return r
+}
+
+function rand(n) {
+    if(n == 2) return randBit()
+    var m = 1, r = 0
+    while(n > m && m > 0) {
+        m <<= 8; r = (r<<8) | randByte()
+    }
+    if(r < 0) r ^= 0x80000000
+    return r % n
+}
+
+function randTest() {
+    for(i = 0; i < TARGET; i++) {
+        eventEntropy({'clientX': randJS(640), 'clientY': randJS(480)})
+    }
+    randInit()
+    histo = [0,0,0,0]
+    for(i = 0; i < TARGET; i++) {
+        histo[randByte()%4]++
+    }
+    alert(histo)
+}
+
+
+            //////////////////////////////
+            ////    Key generation    ////
+            //////////////////////////////
+
+/* Return a Maurer Provable Prime. See HAC chap 4 (c) CRC press */
+function mpp(bits) {
+    if(bits < 10) return [Primes[rand(Primes.length)]]
+    if(bits <=20) return [nextPrime(rand(1<<bits))]
+    var c=10, m=20, B=bits*bits/c, r, q, I, R, n, a, b, d, R2, nMinus1
+    if(bits > m*2) {
+        for(;;) {
+            r=Math.pow(2,Math.random()-1)
+            if(bits - r * bits > m) break
+        }
+    } else {
+        r=0.5
+    }
+    q=mpp(Math.floor(r*bits)+1)
+    I=bPowOf2(bits-2)
+    I=bdiv(I,q).q
+    Il=I.length
+    for(;;) {
+        // generate R => I < R < 2I
+        R=[]; for(n=0; n<Il; n++) R[n]=rand(bx2);
+        R[Il-1] %= I[Il-1]; R=bmod(R,I);
+        if(! R[0]) R[0]|=1 // must be greater or equal to 1
+        R=badd(R,I)
+        n=blshift(bmul(R,q),1) // 2Rq+1
+        n[0]|=1
+        if(!divisable(n,B)) {
+            a=rnum(bits-1)
+            a[0]|=2 // must be greater than 2
+            nMinus1=bsub(n,[1])
+            var x=bmodexp(a,nMinus1,n)
+            if(beq(x,[1])) {
+                R2=blshift(R,1)
+                b=bsub(bmodexp(a,R2,n),[1])
+                d=bgcd(b,n)
+                if(beq(d,[1])) return n
+            }
+        }
+    }
 }
