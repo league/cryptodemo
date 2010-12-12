@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+    <script src="crypto-util.js"></script>
+    <script>
+    $(document).ready(function(){
+        $("#gen").attr('disabled', true)
+        $(document).mousemove(function(e){
+            if(pool.length < TARGET) {
+                eventEntropy(e)
+                $("#log").text(TARGET - pool.length)
+                if(pool.length >= TARGET) {
+                    $("#log").append("target reached<br>")
+                    $("#gen").attr('disabled', false)
+                    $(document).unbind('mousemove')
+                }
+            }
+        })
+        $("#gen").click(function() {
+            randInit()
+            for(i = 0; i < 100; i++) {
+                $("#log").append(" "+rand(100))
+                if(i%10 == 9) $("#log").append("<br>")
+            }
+        })
+    })
+
+    </script>
+  </head>
+  <body>
+    <p>Move your mouse.</p>
+    <input type="button" id="gen" value="Generate" />
+    <pre id="log"></pre>
+  </body>
+</html>
+

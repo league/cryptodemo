@@ -198,7 +198,7 @@ function divisible(n,max) {
             //////////////////////////////
 
 pool = []
-TARGET = 1024
+TARGET = 256
 rp = []
 rs = randJS(256)
 rx = 0
