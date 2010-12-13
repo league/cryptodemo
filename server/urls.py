@@ -5,6 +5,7 @@ from django.conf.urls.defaults import *
 # admin.autodiscover()
 
 urlpatterns = patterns('',
+    (r'^boo/', 'server.api.views.boo')
     # Example:
     # (r'^server/', include('server.foo.urls')),
 
