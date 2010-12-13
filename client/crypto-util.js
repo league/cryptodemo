@@ -1,3 +1,27 @@
+/* crypto-util.js -- randomness, primes, and crypto utilities in javascript
+ *
+ * Copyright (c) 2010 Christopher League
+ * http://contrapunctus.net/
+ *
+ * Portions copyright (c) 2009 Jacob Christian MunchAndersen
+ * http://ebusiness.hopto.org/generator.htm
+ *
+ * Portions copyright (c) 2000 John M Hanna
+ * http://sourceforge.net/projects/shop-js
+ *
+ * This program is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Fonudation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it well be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * http://www.gnu.org/licenses/gpl.html
+ */
+
+
 /* The following functions are (c) 2000 by John M Hanna and are
  * released under the terms of the Gnu Public License.
  * You must freely redistribute them with their source -- see the
@@ -453,3 +477,258 @@ function rsaDecode(key,text) {
  return text
 }
 
+
+            /////////////////////////////
+            ////    Prime numbers    ////
+            /////////////////////////////
+
+Primes=[3, 5, 7, 11, 13, 17, 19,
+	23, 29, 31, 37, 41, 43, 47, 53,
+	59, 61, 67, 71, 73, 79, 83, 89,
+	97, 101, 103, 107, 109, 113, 127, 131,
+	137, 139, 149, 151, 157, 163, 167, 173,
+	179, 181, 191, 193, 197, 199, 211, 223,
+	227, 229, 233, 239, 241, 251, 257, 263,
+	269, 271, 277, 281, 283, 293, 307, 311,
+	313, 317, 331, 337, 347, 349, 353, 359,
+	367, 373, 379, 383, 389, 397, 401, 409,
+	419, 421, 431, 433, 439, 443, 449, 457,
+	461, 463, 467, 479, 487, 491, 499, 503,
+	509, 521, 523, 541, 547, 557, 563, 569,
+	571, 577, 587, 593, 599, 601, 607, 613,
+	617, 619, 631, 641, 643, 647, 653, 659,
+	661, 673, 677, 683, 691, 701, 709, 719,
+	727, 733, 739, 743, 751, 757, 761, 769,
+	773, 787, 797, 809, 811, 821, 823, 827,
+	829, 839, 853, 857, 859, 863, 877, 881,
+	883, 887, 907, 911, 919, 929, 937, 941,
+	947, 953, 967, 971, 977, 983, 991, 997,
+	1009, 1013, 1019, 1021]
+
+
+sieveSize=4000
+sieve0=-1* sieveSize
+sieve=[]
+
+lastPrime=0
+
+primes=Primes.concat()
+
+function nextPrime(p) { // returns the next prime > p
+    var n
+    if(p == Primes[lastPrime] && lastPrime <Primes.length-1) {
+        return Primes[++lastPrime]
+    }
+    if(p<Primes[Primes.length-1]) {
+        for(n=Primes.length-2; n>0; n--) {
+            if(Primes[n] <= p) {
+                lastPrime=n+1
+                return Primes[n+1]
+            }
+        }
+    }
+    // use sieve and find the next one
+    var pp,m
+    // start with p
+    p++; if((p & 1)==0) p++
+    for(;;) {
+        // new sieve if p is outside of this sieve's range
+        if(p-sieve0 > sieveSize || p < sieve0) {
+            // start new sieve
+            for(n=sieveSize-1; n>=0; n--) sieve[n]=0
+            sieve0=p
+            primes=Primes.concat()
+        } 
+        // next p if sieve hit
+        if(sieve[p-sieve0]==0) { // sieve miss
+            // update sieve if p divisable
+            // find a prime divisor
+            for(n=0; n<primes.length; n++) {
+                if((pp=primes[n]) && p % pp ==0) {
+                    for(m=p-sieve0; m<sieveSize; m+=pp) sieve[m]=pp
+                    p+=2;
+                    primes[n]=0
+                    break
+                }
+            }
+            if(n >= primes.length) {
+                // possible prime
+                return p
+            }
+        } else {
+            p+=2;
+        }
+    }
+}
+
+/* This is an adaptation of prime() function from ebusiness
+ * generator.htm, which returns the Nth prime, where index zero is
+ * two.
+ */
+function primeAt(index){
+    if(index == 0) {
+        return 2
+    }
+    index--; // Primes starts with 3, not 2
+    var n = Primes.length
+    if(index < n) {
+        return Primes[index]
+    }
+    var lp = Primes[n-1]
+    while(n <= index) {
+        lp = nextPrime(lp)
+        n++
+    }
+    return lp
+}
+
+/* Return a factor of n if n is divisible by a prime less than max,
+ * else return 0.
+ */
+function divisible(n,max) {
+    if((n[0] & 1) == 0) return 2
+    for(c=0; c<Primes.length; c++) {
+        if(Primes[c] >= max) return 0
+        if(simplemod(n,Primes[c])==0)
+            return Primes[c]
+    }
+    c=Primes[Primes.length-1]
+    for(;;) {
+        c=nextPrime(c)
+        if(c >= max) return 0
+        if(simplemod(n,c)==0)
+            return c
+    }
+}
+
+
+            //////////////////////////////
+            ////    Random numbers    ////
+            //////////////////////////////
+
+pool = []
+TARGET = 256
+rp = []
+rs = randJS(256)
+rx = 0
+ry = 0
+bits = 0
+nbits = 0
+
+function randJS(n) {
+    return Math.floor(Math.random()*n)
+}
+
+function eventEntropy(e) {
+    if(pool.length < TARGET) {
+        var x = e.clientX || e.screenX || e.pageX || 1
+        var y = e.clientY || e.screenY || e.pageY || 1
+        var t = new Date().getTime()
+        var s = t + primeAt(46)*x + primeAt(45)*y
+        pool[pool.length] = s % 256
+    }
+}
+
+function randInit() {
+    if(pool.length < TARGET)
+        throw new Error("Not enough entropy in pool yet.")
+    var x, y, t
+    for(x = 0; x < 256; x++) rp[x] = x;
+    y = 0
+    for(x = 0; x < 256; x++) {
+        y = (pool[x] + rp[x] + y) % 256
+        t = rp[x]; rp[x] = rp[y]; rp[y] = t
+    }
+    rs = randJS(256)
+    rx = ry = 0
+}
+
+function randByte() {
+    // this first bit is basically RC4
+    rx = ++rx & 255;
+    ry = (rp[rx] + ry) & 255;
+    var t = rp[rx]; rp[rx] = rp[ry]; rp[ry]=t;
+    rs ^= rp[(rp[rx] + rp[ry]) & 255];
+    rs ^= randJS(256)
+    rs ^= ror(pool[randJS(pool.length)], randJS(8))
+    rs ^= ror(pool[randJS(pool.length)], randJS(8))
+    return rs;
+}
+
+function randBit() {
+    if(!nbits) {
+        nbits = 8
+        bits = randByte()
+    }
+    nbits--
+    var r = bits & 1
+    bits >>= 1
+    return r
+}
+
+function rand(n) {
+    if(n == 2) return randBit()
+    var m = 1, r = 0
+    while(n > m && m > 0) {
+        m <<= 8; r = (r<<8) | randByte()
+    }
+    if(r < 0) r ^= 0x80000000
+    return r % n
+}
+
+function randTest() {
+    for(i = 0; i < TARGET; i++) {
+        eventEntropy({'clientX': randJS(640), 'clientY': randJS(480)})
+    }
+    randInit()
+    histo = [0,0,0,0]
+    for(i = 0; i < TARGET; i++) {
+        histo[randByte()%4]++
+    }
+    alert(histo)
+}
+
+
+            //////////////////////////////
+            ////    Key generation    ////
+            //////////////////////////////
+
+/* Return a Maurer Provable Prime. See HAC chap 4 (c) CRC press */
+function mpp(bits) {
+    if(bits < 10) return [Primes[rand(Primes.length)]]
+    if(bits <=20) return [nextPrime(rand(1<<bits))]
+    var c=10, m=20, B=bits*bits/c, r, q, I, R, n, a, b, d, R2, nMinus1
+    if(bits > m*2) {
+        for(;;) {
+            r=Math.pow(2,Math.random()-1)
+            if(bits - r * bits > m) break
+        }
+    } else {
+        r=0.5
+    }
+    q=mpp(Math.floor(r*bits)+1)
+    I=bPowOf2(bits-2)
+    I=bdiv(I,q).q
+    Il=I.length
+    for(;;) {
+        // generate R => I < R < 2I
+        R=[]; for(n=0; n<Il; n++) R[n]=rand(bx2);
+        R[Il-1] %= I[Il-1]; R=bmod(R,I);
+        if(! R[0]) R[0]|=1 // must be greater or equal to 1
+        R=badd(R,I)
+        n=blshift(bmul(R,q),1) // 2Rq+1
+        n[0]|=1
+        if(!divisable(n,B)) {
+            a=rnum(bits-1)
+            a[0]|=2 // must be greater than 2
+            nMinus1=bsub(n,[1])
+            var x=bmodexp(a,nMinus1,n)
+            if(beq(x,[1])) {
+                R2=blshift(R,1)
+                b=bsub(bmodexp(a,R2,n),[1])
+                d=bgcd(b,n)
+                if(beq(d,[1])) return n
+            }
+        }
+    }
+}
