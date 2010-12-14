@@ -1,13 +1,113 @@
 <html>
   <head>
+    <title>Public Key Encryption Demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"
+    />
+    <link rel="stylesheet" type="text/css" href="960/reset.css" />
+    <link rel="stylesheet" type="text/css" href="960/text.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="960/960.css" />
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-    <script src="crypto-util.js"></script>
-    <script src="crypto-ui.js"></script>
+    <script type="text/javascript" src="crypto-util.js"></script>
+    <script type="text/javascript" src="crypto-ui.js"></script>
   </head>
   <body>
-    <p>Move your mouse.</p>
-    <input type="button" id="gen" value="Generate" />
-    <pre id="log"></pre>
+    <div id="header" class="container_12 clearfix">
+      <div class="grid_12 alpha omega">
+        <img src="hourglass.png" align="right"
+             id="waiting" class="hidden" width="48" height="48" />
+        <h1>Public Key Encryption Demo</h1>
+      </div>
+    </div>
+
+    <div id="body" class="container_12 clearfix">
+      <div class="grid_3 alpha">
+        <p>This is a short description of how this demo works and the
+          technology it describes.</p>
+        <ul id="navbar">
+          <li id="registerLink" class="selected enabled">Register an identity</li>
+          <li id="sendLink">Send messages</li>
+          <li id="readLink">Read messages</li>
+        </ul>
+
+        <h2><label for="privateKeyObscure">Your private key</label></h2>
+        <input id="privateKeyObscure" name="privateKeyObscure"
+               class="privateKey hideWhenClear" type="password" />
+        <input id="privateKeyClear" name="privateKeyClear"
+               class="privateKey hidden hideWhenObscure" type="text"
+        />
+        <div class="buttons right">
+          <input id="revealPrivateKey" class="hideWhenClear"
+                 type="button" value="Reveal" />
+          <input id="hidePrivateKey" type="button"
+                 class="hidden hideWhenObscure" value="Hide" />
+          <input id="copyPrivateKey" type="button" value="Copy" />
+        </div> <!-- .buttons -->
+      </div>   <!-- .grid_3 -->
+      <div class="grid_9 omega">
+
+        <div id="registerPage" class="page">
+          <h2>Register an identity</h2>
+          <ol id="registerSteps" class="spaced">
+            <li>Enter your name:
+              <input type="text" id="userName"  />
+              <span id="nameCheck" class="hidden okay">OK</span>
+            </li>
+            <li>Move your mouse around to seed the random number
+              generator.  You can stop moving when this number
+              reaches zero → <b id="poolRemaining"></b>
+            </li>
+            <li>
+              <input type="button" id="generateKey" value="Generate Key"
+                     disabled="true" />
+              <i id="pleaseWait" class="hidden">This may take a few
+                moments…</i>
+              <span id="generateResult" class="error hidden">Oops</span>
+            </li>
+            <li>Copy the private key (in the red box at left) and
+              store it someplace safe.  It cannot be retrieved or
+              reset if you lose it.
+            </li>
+          </ol>
+          <pre id="log"></pre>
+
+        </div> <!-- #registerPage -->
+
+        <div id="sendPage" class="page hidden">
+          <h2>Send messages</h2>
+        </div> <!-- #sendPage -->
+
+        <div id="readPage" class="page hidden">
+          <h2>Read messages</h2>
+        </div> <!-- #readPage -->
+
+      </div> <!-- .grid_9 -->
+    </div>   <!-- #body -->
+
+    <div id="footer" class="container_12 clearfix">
+      <div class="grid_4 alpha">
+        <p>Portions copyright ©2010
+          by <a href="http://contrapunctus.net/">Christopher
+            League</a> and ©2000
+          by <a href="http://jhanna777.users.sourceforge.net/">John M
+            Hanna</a>.</p>
+      </div>
+      <div class="grid_4">
+        <p>This program is free software: you can redistribute it
+          and/or modify it under the terms of the GNU General Public
+          License as published by the Free Software Foundation, either
+          version 3 of the License, or (at your option) any later
+          version.</p>
+      </div>
+      <div class="grid_4 omega">
+        <p>This program is distributed in the hope that it will be
+          useful, but <em>without any warranty;</em> without even the
+          implied warranty of
+          <em>merchantability</em> or <em>fitness for a particular
+            purpose.</em>  See the
+          <a href="http://www.gnu.org/licenses/gpl.html">GNU General
+            Public License</a> for more details.</p>
+      </div>
+    </div>
   </body>
 </html>
-
