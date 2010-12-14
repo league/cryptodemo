@@ -615,12 +615,20 @@ ry = 0
 bits = 0
 nbits = 0
 
+function poolFull() {
+    return pool.length >= TARGET
+}
+
+function poolRemaining() {
+    return TARGET - pool.length
+}
+
 function randJS(n) {
     return Math.floor(Math.random()*n)
 }
 
 function eventEntropy(e) {
-    if(pool.length < TARGET) {
+    if(!poolFull()) {
         var x = e.clientX || e.screenX || e.pageX || 1
         var y = e.clientY || e.screenY || e.pageY || 1
         var t = new Date().getTime()
@@ -630,7 +638,7 @@ function eventEntropy(e) {
 }
 
 function randInit() {
-    if(pool.length < TARGET)
+    if(!poolFull())
         throw new Error("Not enough entropy in pool yet.")
     var x, y, t
     for(x = 0; x < 256; x++) rp[x] = x;

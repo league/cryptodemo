@@ -1,6 +1,9 @@
+
+var userNameOk = false
+
 $(document).ready(function(){
 
-    $("#poolRemaining").text(TARGET - pool.length)
+    $("#poolRemaining").text(poolRemaining())
     $("#generateKey").attr("disabled", "true")
 
     /* Need two sychronized input boxes, so we can reveal private key.
@@ -55,34 +58,15 @@ $(document).ready(function(){
         $("#readLink").addClass("selected")
     })
 
-    /* Check user name */
-
-    $("#userName").keyup(function(){
-        var u = $("#userName").val()
-        if(!u) {
-            $("#nameCheck").hide()
-        }
-        else {
-            $.ajax({
-                url: "/cryptoserv/users/"+encodeURI(u),
-                success: function(){
-                    $("#nameCheck").text("Already in use").
-                        removeClass("okay").addClass("error").show()
-                },
-                error: function(){
-                    $("#nameCheck").text("OK").
-                        removeClass("error").addClass("okay").show()
-                }})
-        }
-    })
+    validateUserName()
+    $("#userName").keyup(validateUserName)
 
     $(document).mousemove(function(e){
-        if(pool.length < TARGET) {
+        if(!poolFull()) {
             eventEntropy(e)
-            $("#poolRemaining").text(TARGET - pool.length)
-            if(pool.length >= TARGET) {
-                $("#log").append("target reached<br>")
-                $("#generateKey").attr('disabled', false)
+            $("#poolRemaining").text(poolRemaining())
+            if(poolFull()) {
+                maybeEnableGenerateKey()
                 $(document).unbind('mousemove')
             }
         }
@@ -97,3 +81,32 @@ $(document).ready(function(){
         }
     })
 })
+
+function maybeEnableGenerateKey() {
+    $("#generateKey").attr('disabled', !poolFull() || !userNameOk)
+}
+
+function validateUserName() {
+    var u = $("#userName").val()
+    if(!u) {
+        $("#nameCheck").hide()
+        userNameOk = false
+        maybeEnableGenerateKey()
+    }
+    else {
+        $.ajax({
+            url: "/cryptoserv/users/"+encodeURI(u),
+            success: function(){
+                $("#nameCheck").text("Already in use").
+                    removeClass("okay").addClass("error").show()
+                userNameOk = false
+                maybeEnableGenerateKey()
+            },
+            error: function(){
+                $("#nameCheck").text("OK").
+                    removeClass("error").addClass("okay").show()
+                userNameOk = true
+                maybeEnableGenerateKey()
+            }})
+    }
+}
