@@ -2,25 +2,15 @@
 var userNameOk = false
 
 $(document).ready(function(){
+    $("#copyPrivateKey").attr("disabled", true)
+    $("#generateKey").attr("disabled", true)
+    $("#generateKey").click(generateKey)
     $("#poolRemaining").text(poolRemaining())
-    $("#generateKey").attr("disabled", "true")
-    synchronizePrivateKeyInputs()
-    initializePaging()
     $("#userName").keyup(validateUserName)
-    validateUserName() // in case it's populated on reload
-
-    $(document).mousemove({kind: 'mousemove'}, gatherEntropy)
-    $(document).keyup({kind: 'keyup'}, gatherEntropy)
-    $(document).keydown({kind: 'keydown'}, gatherEntropy)
-
-    $("#generateKey").click(function() {
-        $("#pleaseWait").show()
-        randInit()
-        for(i = 0; i < 100; i++) {
-            $("#log").append(" "+rand(100))
-            if(i%10 == 9) $("#log").append("<br>")
-        }
-    })
+    entropyHooks()
+    initializePaging()
+    synchronizePrivateKeyInputs()
+    validateUserName() // in case it's pre-populated on reload
 })
 
 /* Need two sychronized input boxes, so we can reveal private key.
@@ -60,12 +50,19 @@ function selectPage(e) {
     $("#"+e.data.page+"Link").addClass("selected")
 }
 
+function entropyHooks() {
+    $(document).keydown({kind: 'keydown'}, gatherEntropy)
+    $(document).keyup({kind: 'keyup'}, gatherEntropy)
+    $(document).mousemove({kind: 'mousemove'}, gatherEntropy)
+}
+
 function gatherEntropy(e){
     if(!poolFull()) {
         eventEntropy(e)
         $("#poolRemaining").text(poolRemaining())
         if(poolFull()) {
             maybeEnableGenerateKey()
+            randInit()
             $(document).unbind(e.data.kind)
         }
     }
@@ -98,4 +95,49 @@ function validateUserName() {
                 maybeEnableGenerateKey()
             }})
     }
+}
+
+function stringify(d) {
+    return JSON.stringify(d).replace(/,/g, ", ")
+}
+
+function generateKey() {
+    $("#generateKey").attr("disabled", true)
+    $("#pleaseWait").show(function() {
+        var bits = $("#bits").val()
+        var p = mpp(bits)
+        var q = mpp(bits)
+        var pq = bmul(p, q)
+        var p1q1 = bmul(bsub(p, [1]), bsub(q, [1]))
+        var c, d, e
+        for(c = 5; c < Primes.length; c++) {
+            e = [Primes[c]]
+            d = modinverse(e, p1q1)
+            if(d.length != 1 || d[0] != 0) break
+        }
+        var priv = stringify({p: p, q: q, d: d})
+        var pub = stringify({pq: pq, e: e})
+        /* Now let's try to save it. */
+        var u = $("#userName").val()
+        $.ajax({
+            url: "/cryptoserv/users/"+encodeURI(u),
+            type: "POST",
+            data: pub,
+            processData: false,
+            success: function() {
+                $("#userName").attr("disabled", true)
+                $("#privateKeyObscure").val(priv).change()
+                $("#publicKey").val(pub).show()
+                $("#generateResult").removeClass("error").addClass("okay").
+                    text("Saved public key:").show()
+                $("#copyPrivateKey").attr("disabled", false)
+                $("#sendLink").addClass("enabled")
+                $("#readLink").addClass("enabled")
+                $("#pleaseWait").hide()
+            },
+            error: function() {
+                $("generateResult").removeClass("okay").addClass("error").
+                    text("Some error saving.").show()
+            }})
+    })
 }

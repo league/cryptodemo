@@ -271,6 +271,13 @@ function bmod2(x,m,mu) { // Barrett's modular reduction from HAC, 14.42, CRC Pre
  return r
 }
 
+function bPowOf2(pow) { // return a bigint
+ var r=[], n, m=Math.floor(pow/bs)
+ for(n=m-1; n>=0; n--) r[n]=0;
+ r[m]= 1<<(pow % bs)
+ return r
+}
+
 function sub2(a,b) {
  var r=bsub(a,b)
  if(r.length==0) {
@@ -701,6 +708,38 @@ function randTest() {
             ////    Key generation    ////
             //////////////////////////////
 
+function bgcd(uu,vv) { // return greatest common divisor
+ // algorythm from http://algo.inria.fr/banderier/Seminar/Vallee/index.html
+ var d, t, v=vv.concat(), u=uu.concat()
+ for(;;) {
+  d=bsub(v,u)
+  if(beq(d,[0])) return u
+  if(d.length) {
+   while((d[0] & 1) ==0)
+    d=brshift(d).a // v=(v-u)/2^val2(v-u)
+   v=d
+  } else {
+   t=v; v=u; u=t // swap u and v
+  }
+ }
+}
+
+function rnum(bits) {
+ var n,b=1,c=0
+ var a=[]
+ if(bits==0) bits=1
+ for(n=bits; n>0; n--) {
+  if(rand(2)) {
+   a[c]|=b
+  }
+  b<<=1
+  if(b==bx2) {
+   b=1; c++
+  }
+ }
+ return a
+}
+
 /* Return a Maurer Provable Prime. See HAC chap 4 (c) CRC press */
 function mpp(bits) {
     if(bits < 10) return [Primes[rand(Primes.length)]]
@@ -726,7 +765,7 @@ function mpp(bits) {
         R=badd(R,I)
         n=blshift(bmul(R,q),1) // 2Rq+1
         n[0]|=1
-        if(!divisable(n,B)) {
+        if(!divisible(n,B)) {
             a=rnum(bits-1)
             a[0]|=2 // must be greater than 2
             nMinus1=bsub(n,[1])

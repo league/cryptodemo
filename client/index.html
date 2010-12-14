@@ -48,7 +48,6 @@
                  type="button" value="Reveal" />
           <input id="hidePrivateKey" type="button"
                  class="hidden hideWhenObscure" value="Hide" />
-          <input id="copyPrivateKey" type="button" value="Copy" />
         </div> <!-- .buttons -->
       </div>   <!-- .grid_3 -->
       <div class="grid_9 omega">
@@ -64,16 +63,27 @@
               generator.  You can stop moving when this number
               reaches zero → <b id="poolRemaining"></b>
             </li>
+            <li>Choose the size of your key:
+              <select id="bits">
+                <option value="32">32 bits</option>
+                <option value="64" selected="true">64 bits</option>
+                <option value="128">128 bits</option>
+                <option value="256">256 bits</option>
+              </select>
+              Larger keys are better, but can take much longer to
+              calculate.
             <li>
               <input type="button" id="generateKey" value="Generate Key"
                      disabled="true" />
               <i id="pleaseWait" class="hidden">This may take a few
                 moments…</i>
-              <span id="generateResult" class="error hidden">Oops</span>
+              <span id="generateResult" class="okay hidden">Public key:</span>
+              <input id="publicKey" type="text" class="publicKey hidden" />
             </li>
-            <li>Copy the private key (in the red box at left) and
-              store it someplace safe.  It cannot be retrieved or
-              reset if you lose it.
+            <li>
+              <input id="copyPrivateKey" type="button" value="Copy" />
+              the private key and store it someplace safe.  It cannot
+              be retrieved or reset if you lose it.
             </li>
           </ol>
           <pre id="log"></pre>

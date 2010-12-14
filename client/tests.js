@@ -22,8 +22,8 @@ $(document).ready(function(){
     })
 
     test("bpow2", function() {
-        ok(beq(bpow2(9), [0x200]))
-        ok(beq(bpow2(37), [0x0, 0x200]))
+        ok(beq(bPowOf2(9), [0x200]))
+        ok(beq(bPowOf2(37), [0x0, 0x200]))
     })
 
     module("Prime numbers")
@@ -46,10 +46,6 @@ $(document).ready(function(){
         equal(divisible([2501],100), 41)
         equal(divisible([1031],100), 0)
     })
-
-    module("Random numbers")
-
-    module("Key generation")
 
     test("maurer provable primes", function(){
 //        equal(mpp(24), 0)

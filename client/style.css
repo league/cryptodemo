@@ -47,6 +47,11 @@ a:visited { color: #606; }
     background: #faa;
     width: 220px;
 }
+.publicKey {
+    border: 4px solid green;
+    background: #afa;
+    width: 220px;
+}
 .clear {
     clear: both;
 }
