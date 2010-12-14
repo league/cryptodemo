@@ -3,7 +3,7 @@
  * Copyright (c) 2010 Christopher League
  * http://contrapunctus.net/
  *
- * Portions copyright (c) 2009 Jacob Christian MunchAndersen
+ * Portions copyright (c) 2009 Jacob Christian Munch-Andersen
  * http://ebusiness.hopto.org/generator.htm
  *
  * Portions copyright (c) 2000 John M Hanna

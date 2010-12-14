@@ -1,3 +1,25 @@
+/* crypto-ui.js -- public key cryptography demo -- user interface
+ *
+ * Copyright (c) 2010 Christopher League
+ * http://contrapunctus.net/
+ *
+ * Portions copyright (c) 2009 Jacob Christian Munch-Andersen
+ * http://ebusiness.hopto.org/generator.htm
+ *
+ * Portions copyright (c) 2000 John M Hanna
+ * http://sourceforge.net/projects/shop-js
+ *
+ * This program is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Fonudation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it well be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * http://www.gnu.org/licenses/gpl.html
+ */
 
 var userNameOk = false
 var messageTemplate = null
