@@ -70,3 +70,18 @@ a:visited { color: #606; }
     font-weight: bold;
     padding: 0 1em;
 }
+#sendPage .row {
+    margin-bottom: 1ex;
+}
+#sendPage label {
+    float: left;
+    width: 60px;
+    text-align: right;
+    display: block;
+}
+#sendPage input, #sendPage select, #sendPage textarea {
+    margin-left: 10px;
+}
+#sendPage #sendButton {
+    margin-left: 70px;
+}

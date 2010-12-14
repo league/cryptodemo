@@ -779,3 +779,18 @@ function mpp(bits) {
         }
     }
 }
+
+function generateKey(bits) {
+    var p = mpp(bits)
+    var q = mpp(bits)
+    var pq = bmul(p, q)
+    var p1q1 = bmul(bsub(p, [1]), bsub(q, [1]))
+    var c, d, e
+    for(c = 5; c < Primes.length; c++) {
+        e = [Primes[c]]
+        d = modinverse(e, p1q1)
+        if(d.length != 1 || d[0] != 0) break
+    }
+    return {pub: {pq: pq, e: e},
+            priv: {p: p, q: q, d: d}}
+}

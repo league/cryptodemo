@@ -3,9 +3,14 @@ var userNameOk = false
 
 $(document).ready(function(){
     $("#copyPrivateKey").attr("disabled", true)
+    $("#draft").keyup(maybeEnableSend)
     $("#generateKey").attr("disabled", true)
-    $("#generateKey").click(generateKey)
+    $("#generateKey").click(generateKeyUI)
     $("#poolRemaining").text(poolRemaining())
+    $("#recipient").change(maybeEnableSend)
+    $("#recipient").focus(loadRecipients)
+    $("#sendButton").click(sendMessage)
+    $("#sendLink").click(initializeSendForm)
     $("#userName").keyup(validateUserName)
     entropyHooks()
     initializePaging()
@@ -101,22 +106,12 @@ function stringify(d) {
     return JSON.stringify(d).replace(/,/g, ", ")
 }
 
-function generateKey() {
+function generateKeyUI() {
     $("#generateKey").attr("disabled", true)
     $("#pleaseWait").show(function() {
-        var bits = $("#bits").val()
-        var p = mpp(bits)
-        var q = mpp(bits)
-        var pq = bmul(p, q)
-        var p1q1 = bmul(bsub(p, [1]), bsub(q, [1]))
-        var c, d, e
-        for(c = 5; c < Primes.length; c++) {
-            e = [Primes[c]]
-            d = modinverse(e, p1q1)
-            if(d.length != 1 || d[0] != 0) break
-        }
-        var priv = stringify({p: p, q: q, d: d})
-        var pub = stringify({pq: pq, e: e})
+        var r = generateKey($("#bits").val())
+        var priv = stringify(r.priv)
+        var pub = stringify(r.pub)
         /* Now let's try to save it. */
         var u = $("#userName").val()
         $.ajax({
@@ -139,5 +134,38 @@ function generateKey() {
                 $("generateResult").removeClass("okay").addClass("error").
                     text("Some error saving.").show()
             }})
+    })
+}
+
+function initializeSendForm() {
+    var u = $("#userName").val()
+    $("#sender").val(u).attr('disabled', true)
+    $("#draft").val("").attr('disabled', false)
+    $("#sendButton").attr('disabled', true)
+}
+
+function loadRecipients() {
+    $.getJSON("/cryptoserv/users/", function(users){
+        var prompt = $("#recipient option:first-child").detach()
+        $("#recipient option").remove()
+        $("#recipient").append(prompt)
+        $.each(users, function(i,u) {
+            $("#recipient").append(prompt.clone().attr("value", u).text(u))
+        })
+            })
+}
+
+function maybeEnableSend() {
+    $("#sendButton").attr('disabled',
+                          !$("#recipient").val() || !$("#draft").val())
+}
+
+function sendMessage() {
+    $("#sendButton, #draft").attr('disabled', true);
+    /* fetch public key for recipient */
+    var r = $("#recipient").val()
+    $.getJSON("/cryptoserv/users/"+encodeURI(r), function(pub){
+        var c = rsaEncode(pub.e, pub.pq, $("#draft").val())
+        $("#draft").val(c)
     })
 }

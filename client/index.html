@@ -32,7 +32,7 @@
         <ul id="navbar">
           <li id="registerLink" class="selected enabled">Register</li>
           <li id="loginLink" class="enabled">Log in</li>
-          <li id="sendLink">Send messages</li>
+          <li id="sendLink">Send message</li>
           <li id="readLink">Read messages</li>
         </ul>
 
@@ -95,7 +95,35 @@
         </div>
 
         <div id="sendPage" class="page hidden">
-          <h2>Send messages</h2>
+          <h2>Send message</h2>
+
+          <div class="row">
+            <label for="sender">From:</label>
+            <input type="text" name="sender" id="sender" />
+          </div>
+
+          <div class="row">
+            <label for="recipient">To:</label>
+            <select id="recipient" name="recipient">
+              <option value="">Select recipient</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <label for="draft">Text:</label>
+            <textarea id="draft" name="draft"
+                      rows="6" cols="60"></textarea>
+          </div>
+
+          <div class="row">
+            <label for="encryptOption">Encrypt:</label>
+            <input id="encryptOption" name="encryptOption"
+                   type="checkbox" checked="true" />
+          </div>
+
+          <div class="row">
+            <input id="sendButton" type="button" value="Send" />
+          </div>
         </div> <!-- #sendPage -->
 
         <div id="readPage" class="page hidden">
