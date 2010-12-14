@@ -142,6 +142,8 @@ function initializeSendForm() {
     $("#sender").val(u).attr('disabled', true)
     $("#draft").val("").attr('disabled', false)
     $("#sendButton").attr('disabled', true)
+    $("#sendResult").hide()
+    $("#encryptOption").attr('checked', true)
 }
 
 function loadRecipients() {
@@ -163,9 +165,33 @@ function maybeEnableSend() {
 function sendMessage() {
     $("#sendButton, #draft").attr('disabled', true);
     /* fetch public key for recipient */
+    var s = $("#sender").val()
     var r = $("#recipient").val()
-    $.getJSON("/cryptoserv/users/"+encodeURI(r), function(pub){
-        var c = rsaEncode(pub.e, pub.pq, $("#draft").val())
-        $("#draft").val(c)
+    if($("#encryptOption").attr('checked')) {
+        $.getJSON("/cryptoserv/users/"+encodeURI(r), function(pub){
+            $("#draft").val(rsaEncode(pub.e, pub.pq, $("#draft").val()))
+            submitMessage(s,r)
+        })
+    }
+    else {
+        submitMessage(s,r)
+    }
+}
+
+function submitMessage(s,r) {
+    $.ajax({
+        url: "/cryptoserv/messages/from/"+encodeURI(s)+
+            "/to/"+encodeURI(r),
+        type: "POST",
+        data: $("#draft").val(),
+        processData: false,
+        success: function() {
+            $("#sendResult").removeClass("error").addClass("okay").
+                text("Message sent").show()
+        },
+        error: function() {
+            $("#sendResult").removeClass("okay").addClass("error").
+                text("error").show()
+        }
     })
 }

@@ -1,6 +1,6 @@
 # Create your views here.
 
-from server.api.models import User
+from server.api.models import User, Message
 from django.http import *
 import simplejson as json
 
@@ -32,3 +32,14 @@ def post_user(request, name):
     u, created = (User.objects.get_or_create
                   (name=name, defaults={'public_key': pk}))
     return ok(j(True)) if created else r(403, j('User already exists'))
+
+def messages(request, sender=None, recipient=None):
+#    assert(request.method == "POST")
+    try:
+        s = User.objects.get(name=sender)
+        t = User.objects.get(name=recipient)
+        m = Message(sender=s, recipient=t, text=request.raw_post_data)
+        m.save()
+        return ok(j(True))
+    except User.DoesNotExist:
+        return r(400, j('Sender or recipient do not exist'))
