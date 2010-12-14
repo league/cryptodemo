@@ -217,6 +217,9 @@ function showMessages(e) {
         url += "to/" + encodeURI($("#userName").val())
     }
     $.getJSON(url, function(ms) {
+        if(ms.length == 0) {
+            $("#messageList").append("<p>No messages.</p>")
+        }
         $.each(ms, function(i,m) {
             var h = messageTemplate.clone().attr('id', 'message'+i)
             $("#messageList").append(h)
