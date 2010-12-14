@@ -16,21 +16,28 @@
       <div class="grid_12 alpha omega">
         <img src="hourglass.png" align="right"
              id="waiting" class="hidden" width="48" height="48" />
-        <h1>Public Key Encryption Demo</h1>
+        <h1>Public Key Cryptography Demo</h1>
       </div>
     </div>
 
     <div id="body" class="container_12 clearfix">
       <div class="grid_3 alpha">
-        <p>This is a short description of how this demo works and the
-          technology it describes.</p>
+        <p>Public key crypto systems are one of the most remarkable
+          and practical inventions in the history of codes, because
+          they don’t rely on a <em>shared secret.</em> Two keys work
+          together: a fully public one, and one that is
+          known <em>only</em> to you.  Find a friend and enjoy this
+          little demonstration:</p>
+
         <ul id="navbar">
-          <li id="registerLink" class="selected enabled">Register an identity</li>
+          <li id="registerLink" class="selected enabled">Register</li>
+          <li id="loginLink" class="enabled">Log in</li>
           <li id="sendLink">Send messages</li>
           <li id="readLink">Read messages</li>
         </ul>
 
-        <h2><label for="privateKeyObscure">Your private key</label></h2>
+        <h2><label for="privateKeyObscure">Your private
+        key</label></h2>
         <input id="privateKeyObscure" name="privateKeyObscure"
                class="privateKey hideWhenClear" type="password" />
         <input id="privateKeyClear" name="privateKeyClear"
@@ -72,6 +79,10 @@
           <pre id="log"></pre>
 
         </div> <!-- #registerPage -->
+
+        <div id="loginPage" class="page hidden">
+          <h2>Log in</h2>
+        </div>
 
         <div id="sendPage" class="page hidden">
           <h2>Send messages</h2>

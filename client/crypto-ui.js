@@ -1,6 +1,7 @@
 $(document).ready(function(){
 
     $("#poolRemaining").text(TARGET - pool.length)
+    $("#generateKey").attr("disabled", "true")
 
     /* Need two sychronized input boxes, so we can reveal private key.
        The obscured one will be canonical (used in calculations) so we
@@ -33,6 +34,13 @@ $(document).ready(function(){
         $("#registerLink").addClass("selected")
     })
 
+    $("#loginLink").click(function(){
+        $(".page").hide()
+        $("#loginPage").show("fast")
+        $("#navbar li").removeClass("selected")
+        $("#loginLink").addClass("selected")
+    })
+
     $("#sendLink").click(function(){
         $(".page").hide()
         $("#sendPage").show("fast")
@@ -45,6 +53,27 @@ $(document).ready(function(){
         $("#readPage").show("fast")
         $("#navbar li").removeClass("selected")
         $("#readLink").addClass("selected")
+    })
+
+    /* Check user name */
+
+    $("#userName").keyup(function(){
+        var u = $("#userName").val()
+        if(!u) {
+            $("#nameCheck").hide()
+        }
+        else {
+            $.ajax({
+                url: "/cryptoserv/users/"+encodeURI(u),
+                success: function(){
+                    $("#nameCheck").text("Already in use").
+                        removeClass("okay").addClass("error").show()
+                },
+                error: function(){
+                    $("#nameCheck").text("OK").
+                        removeClass("error").addClass("okay").show()
+                }})
+        }
     })
 
     $(document).mousemove(function(e){
