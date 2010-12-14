@@ -128,7 +128,34 @@
         </div> <!-- #sendPage -->
 
         <div id="readPage" class="page hidden">
-          <h2>Read messages</h2>
+          <h2>Read messages — 
+            <span id="messageNav">
+              <span id="inboxLink" class="set selected">inbox</span> |
+              <span id="allMessageLink" class="set">all</span>
+            </span>
+          </h2>
+
+          <div id="messageList">
+            <div class="message">
+              <div class="headers">
+                <div class="header fromHeader">
+                  <b>From:</b> <span>Chris</span>
+                </div>
+                <div class="header toHeader">
+                  <b>To:</b> <span>Frank</span>
+                </div>
+                <div class="header dateHeader">
+                  <b>Date:</b> <span>2010-05-11</span>
+                </div>
+              </div> <!-- headers -->
+              <div class="messageBody">
+                <div class="decryptLink">
+                  <span>decrypt</span>
+                </div>
+                <pre>This is the message text.</pre>
+              </div>
+            </div> <!-- message -->
+          </div>   <!-- messageList -->
         </div> <!-- #readPage -->
 
       </div> <!-- .grid_9 -->

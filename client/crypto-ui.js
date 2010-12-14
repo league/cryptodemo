@@ -2,11 +2,14 @@
 var userNameOk = false
 
 $(document).ready(function(){
+    $("#allMessageLink").click(showMessages)
     $("#copyPrivateKey").attr("disabled", true)
     $("#draft").keyup(maybeEnableSend)
     $("#generateKey").attr("disabled", true)
     $("#generateKey").click(generateKeyUI)
+    $("#inboxLink").click(showMessages)
     $("#poolRemaining").text(poolRemaining())
+    $("#readLink").click(initializeReader)
     $("#recipient").change(maybeEnableSend)
     $("#recipient").focus(loadRecipients)
     $("#sendButton").click(sendMessage)
@@ -194,4 +197,29 @@ function submitMessage(s,r) {
                 text("error").show()
         }
     })
+}
+
+function initializeReader() {
+    $("#inboxLink").click()
+}
+
+function showMessages(e) {
+    $("#messageNav .set").removeClass("selected")
+    $("#"+e.target.id).addClass("selected")
+    var template = $("#messageList .message:first-child").detach()
+    $("#messageList *").remove()
+    var url = "/cryptoserv/messages/"
+    if(e.target.id == "inboxLink") {
+        url += "to/" + encodeURI($("#userName").val())
+    }
+    $.getJSON(url, function(ms) {
+        $.each(ms, function(i,m) {
+            var h = template.clone().attr('id', 'message'+i)
+            $("#messageList").append(h)
+            $("#message"+i+" .fromHeader span").text(m.sender)
+            $("#message"+i+" .toHeader span").text(m.recipient)
+            $("#message"+i+" .dateHeader span").text(m.date)
+            $("#message"+i+" .messageBody pre").text(m.text)
+        })
+            })
 }

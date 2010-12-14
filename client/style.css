@@ -34,6 +34,13 @@ a:visited { color: #606; }
 #navbar .selected:after {
     content: " →";
 }
+#messageNav .set {
+    cursor: pointer;
+}
+#messageNav .selected {
+    text-transform: uppercase;
+    border-bottom: 1px solid #ccc;
+}
 
 #footer {
     color: #333;
@@ -84,4 +91,26 @@ a:visited { color: #606; }
 }
 #sendPage #sendButton {
     margin-left: 70px;
+}
+.header b, .decryptLink {
+    float: left;
+    width: 140px;
+    text-align: right;
+    display: block;
+}
+.header span {
+    margin-left: 10px;
+}
+.decryptLink span {
+    border: 1px solid #333;
+    padding: .3ex 1ex;
+}
+.decryptLink span:hover {
+    cursor: pointer;
+}
+.messageBody pre {
+    margin: 1ex 0 1ex 150px;
+}
+.message {
+    margin-bottom: 3ex;
 }

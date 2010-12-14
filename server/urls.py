@@ -8,6 +8,8 @@ from server.api.views import *
 urlpatterns = patterns('',
     (r'^users/$', all_users),
     (r'^users/(?P<name>.+)$', one_user),
+    (r'^messages/$', messages),
+    (r'^messages/to/(?P<recipient>.+)$', messages),
     (r'^messages/from/(?P<sender>.+)/to/(?P<recipient>.+)$', messages),
 
     # Example:

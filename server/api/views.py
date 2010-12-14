@@ -34,7 +34,25 @@ def post_user(request, name):
     return ok(j(True)) if created else r(403, j('User already exists'))
 
 def messages(request, sender=None, recipient=None):
-#    assert(request.method == "POST")
+    if request.method == "POST":
+        return send_message(request, sender, recipient)
+    ms = Message.objects
+    if sender:
+        ms = ms.filter(sender__name = sender)
+    if recipient:
+        ms = ms.filter(recipient__name = recipient)
+    ms = ms.order_by('timestamp').reverse()[:5]
+    return ok(j([messageData(m) for m in ms]))
+
+def messageData(m):
+    return {'sender': m.sender.name,
+            'recipient': m.recipient.name,
+            'date': str(m.timestamp),
+            'text': m.text}
+
+def send_message(request, sender, recipient):
+    if not sender or not recipient:
+        return r(400, j('Sender and/or recipient not specified'))
     try:
         s = User.objects.get(name=sender)
         t = User.objects.get(name=recipient)
@@ -42,4 +60,4 @@ def messages(request, sender=None, recipient=None):
         m.save()
         return ok(j(True))
     except User.DoesNotExist:
-        return r(400, j('Sender or recipient do not exist'))
+        return r(404, j('Sender or recipient not found'))
