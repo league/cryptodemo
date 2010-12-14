@@ -14,7 +14,7 @@ def ok(data):
     return r(200, data)
 
 def all_users(request):
-    return ok(j([u.name for u in User.objects.all()]))
+    return ok(j([u.name for u in User.objects.order_by('name')]))
 
 def one_user(request, name):
     return ((post_user if request.method == "POST" else get_user)
