@@ -31,7 +31,7 @@
 
         <ul id="navbar">
           <li id="registerLink" class="selected enabled">Register</li>
-          <li id="loginLink" class="enabled">Log in</li>
+          <li id="loginLink" class="enabled hidden">Log in</li>
           <li id="sendLink">Send message</li>
           <li id="readLink">Read messages</li>
         </ul>
@@ -149,10 +149,13 @@
                 </div>
               </div> <!-- headers -->
               <div class="messageBody">
-                <div class="decryptLink">
-                  <span>decrypt</span>
+                <div class="messageButtons">
+                  <span class="decryptLink">Decrypt</span>
+                  <span class="undoLink hidden">Undo</span>
                 </div>
-                <pre>This is the message text.</pre>
+                <p class="decryptResult hidden"></p>
+                <pre class="text">This is the message text.</pre>
+                <pre class="backup hidden"></pre>
               </div>
             </div> <!-- message -->
           </div>   <!-- messageList -->

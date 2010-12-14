@@ -92,7 +92,7 @@ a:visited { color: #606; }
 #sendPage #sendButton {
     margin-left: 70px;
 }
-.header b, .decryptLink {
+.header b, .messageButtons {
     float: left;
     width: 140px;
     text-align: right;
@@ -101,14 +101,14 @@ a:visited { color: #606; }
 .header span {
     margin-left: 10px;
 }
-.decryptLink span {
+.messageButtons span {
     border: 1px solid #333;
     padding: .3ex 1ex;
 }
-.decryptLink span:hover {
+.messageButtons span:hover {
     cursor: pointer;
 }
-.messageBody pre {
+.messageBody pre, .decryptResult {
     margin: 1ex 0 1ex 150px;
 }
 .message {

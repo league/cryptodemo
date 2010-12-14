@@ -1,5 +1,6 @@
 
 var userNameOk = false
+var messageTemplate = null
 
 $(document).ready(function(){
     $("#allMessageLink").click(showMessages)
@@ -19,12 +20,16 @@ $(document).ready(function(){
     initializePaging()
     synchronizePrivateKeyInputs()
     validateUserName() // in case it's pre-populated on reload
+    messageTemplate = $("#messageList .message:first-child").detach()
 })
 
 /* Need two sychronized input boxes, so we can reveal private key.
    The obscured one will be canonical (used in calculations) so we
    must update it as the clear one changes. */
 function synchronizePrivateKeyInputs() {
+    $("#privateKeyClear").val("")
+    $("#privateKeyObscure").val("")
+
     $("#privateKeyClear").change(function(){
         $("#privateKeyObscure").val($(this).val())
     })
@@ -206,7 +211,6 @@ function initializeReader() {
 function showMessages(e) {
     $("#messageNav .set").removeClass("selected")
     $("#"+e.target.id).addClass("selected")
-    var template = $("#messageList .message:first-child").detach()
     $("#messageList *").remove()
     var url = "/cryptoserv/messages/"
     if(e.target.id == "inboxLink") {
@@ -214,12 +218,40 @@ function showMessages(e) {
     }
     $.getJSON(url, function(ms) {
         $.each(ms, function(i,m) {
-            var h = template.clone().attr('id', 'message'+i)
+            var h = messageTemplate.clone().attr('id', 'message'+i)
             $("#messageList").append(h)
             $("#message"+i+" .fromHeader span").text(m.sender)
             $("#message"+i+" .toHeader span").text(m.recipient)
             $("#message"+i+" .dateHeader span").text(m.date)
             $("#message"+i+" .messageBody pre").text(m.text)
+            $("#message"+i+" .decryptLink").click(decryptMessage).
+                attr('id', 'decryptLink'+i)
+            $("#message"+i+" .undoLink").click(restoreMessage).
+                attr('id', 'undoLink'+i)
         })
             })
+}
+
+function decryptMessage(e) {
+    var i = e.target.id.replace(/decryptLink/, '')
+    var t = $("#message"+i+" .messageBody pre.text")
+    var priv = $.parseJSON($("#privateKeyObscure").val())
+    if(!priv) {
+        $("#message"+i+" .decryptResult").removeClass("okay").
+            addClass("error").text("No private key provided.").show()
+        return
+    }
+    var m = rsaDecode([priv.d, priv.p, priv.q], t.text())
+    t.text(m)
+    $("#message"+i+" .decryptResult").hide()
+    $("#message"+i+" .decryptLink").hide()
+    $("#message"+i+" .undoLink").show()
+}
+
+function restoreMessage(e) {
+    var i = e.target.id.replace(/undoLink/, '')
+    $("#message"+i+" .messageBody pre.text").
+        text($("#message"+i+" .messageBody pre.backup").text())
+    $("#message"+i+" .decryptLink").show()
+    $("#message"+i+" .undoLink").hide()
 }
