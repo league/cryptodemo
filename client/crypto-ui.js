@@ -84,18 +84,19 @@ function synchronizePrivateKeyInputs() {
 }
 
 function initializePaging() {
-    $("#registerLink").click({page: "register"}, selectPage)
-    $("#loginLink").click({page: "login"}, selectPage)
-    $("#sendLink").click({page: "send"}, selectPage)
-    $("#readLink").click({page: "read"}, selectPage)
+    $("#registerLink").click(selectPage)
+    $("#loginLink").click(selectPage)
+    $("#sendLink").click(selectPage)
+    $("#readLink").click(selectPage)
 }
 
 function selectPage(e) {
+    var name = e.target.id(/Link/,'')
     $(".page").hide()
-    $("#"+e.data.page+"Page").show("fast")
+    $("#"+name+"Page").show("fast")
     $("#navbar li").removeClass("selected")
-    $("#"+e.data.page+"Link").addClass("selected")
-    if(e.data.page == "register") {
+    $("#"+name+"Link").addClass("selected")
+    if(name == "register") {
         zclip.show()
     }
     else {
@@ -104,9 +105,9 @@ function selectPage(e) {
 }
 
 function entropyHooks() {
-    $(document).keydown({kind: 'keydown'}, gatherEntropy)
-    $(document).keyup({kind: 'keyup'}, gatherEntropy)
-    $(document).mousemove({kind: 'mousemove'}, gatherEntropy)
+    $(document).keydown(gatherEntropy)
+    $(document).keyup(gatherEntropy)
+    $(document).mousemove(gatherEntropy)
 }
 
 function gatherEntropy(e){
@@ -116,7 +117,9 @@ function gatherEntropy(e){
         if(poolFull()) {
             maybeEnableGenerateKey()
             randInit()
-            $(document).unbind(e.data.kind)
+            $(document).unbind('keydown')
+            $(document).unbind('keyup')
+            $(document).unbind('mousemove')
         }
     }
 }
