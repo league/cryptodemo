@@ -32,6 +32,9 @@ $(document).ready(function(){
     zclip.setHandCursor(true)
     zclip.setCSSEffects(true)
     zclip.setText("NONE")
+    zclip.addEventListener( 'complete', function(client) {
+        alert("Copied your private key to clipboard.")
+    })
     $("#allMessageLink").click(showMessages)
     $("#copyPrivateKey").attr("disabled", true)
     $("#draft").keyup(maybeEnableSend)
