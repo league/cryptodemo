@@ -31,12 +31,7 @@ $(document).ready(function(){
     zclip.glue("copyPrivateKey", "zclipContainer")
     zclip.setHandCursor(true)
     zclip.setCSSEffects(true)
-    zclip.setText("BEFORE")
-    zclip.addEventListener('mouseDown', function(client) {
-        var k = $("#privateKeyObscure").val()
-        zclip.setText(k)
-        alert(k)
-    })
+    zclip.setText("NONE")
     $("#allMessageLink").click(showMessages)
     $("#copyPrivateKey").attr("disabled", true)
     $("#draft").keyup(maybeEnableSend)
@@ -69,7 +64,9 @@ function synchronizePrivateKeyInputs() {
     })
 
     $("#privateKeyObscure").change(function(){
-        $("#privateKeyClear").val($(this).val())
+        var k = $(this).val()
+        $("#privateKeyClear").val(k)
+        zclip.setText(k)
     })
 
     $("#revealPrivateKey").click(function(){
