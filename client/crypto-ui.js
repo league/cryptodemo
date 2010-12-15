@@ -23,8 +23,20 @@
 
 var userNameOk = false
 var messageTemplate = null
+var zclip = null
 
 $(document).ready(function(){
+    ZeroClipboard.setMoviePath('zeroclipboard/ZeroClipboard.swf')
+    zclip = new ZeroClipboard.Client()
+    zclip.glue("copyPrivateKey", "zclipContainer")
+    zclip.setHandCursor(true)
+    zclip.setCSSEffects(true)
+    zclip.setText("BEFORE")
+    zclip.addEventListener('mouseDown', function(client) {
+        var k = $("#privateKeyObscure").val()
+        zclip.setText(k)
+        alert(k)
+    })
     $("#allMessageLink").click(showMessages)
     $("#copyPrivateKey").attr("disabled", true)
     $("#draft").keyup(maybeEnableSend)
@@ -83,6 +95,12 @@ function selectPage(e) {
     $("#"+e.data.page+"Page").show("fast")
     $("#navbar li").removeClass("selected")
     $("#"+e.data.page+"Link").addClass("selected")
+    if(e.data.page == "register") {
+        zclip.show()
+    }
+    else {
+        zclip.hide()
+    }
 }
 
 function entropyHooks() {
