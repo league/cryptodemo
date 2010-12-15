@@ -150,16 +150,12 @@ function validateUserName() {
     }
 }
 
-function stringify(d) {
-    return JSON.stringify(d).replace(/,/g, ", ")
-}
-
 function generateKeyUI() {
     $("#generateKey").attr("disabled", true)
     $("#pleaseWait").show(function() {
         var r = generateKey($("#bits").val())
-        var priv = stringify(r.priv)
-        var pub = stringify(r.pub)
+        var priv = JSON.stringify(r.priv)
+        var pub = JSON.stringify(r.pub)
         /* Now let's try to save it. */
         var u = $("#userName").val()
         $.ajax({
