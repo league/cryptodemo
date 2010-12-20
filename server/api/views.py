@@ -42,13 +42,7 @@ def messages(request, sender=None, recipient=None):
     if recipient:
         ms = ms.filter(recipient__name = recipient)
     ms = ms.order_by('timestamp').reverse()[:5]
-    return ok(j([messageData(m) for m in ms]))
-
-def messageData(m):
-    return {'sender': m.sender.name,
-            'recipient': m.recipient.name,
-            'date': str(m.timestamp),
-            'text': m.text}
+    return ok(j([m.json() for m in ms]))
 
 def send_message(request, sender, recipient):
     if not sender or not recipient:
