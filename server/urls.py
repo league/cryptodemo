@@ -1,24 +1,28 @@
 from django.conf.urls.defaults import *
+from django.views.static import serve
+from os.path import join, dirname, realpath
 from server.api.views import *
+from server.settings import DEBUG
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
 
-urlpatterns = patterns('',
-    (r'^users/$', all_users),
-    (r'^users/(?P<name>.+)$', one_user),
-    (r'^messages/$', messages),
-    (r'^messages/to/(?P<recipient>.+)$', messages),
-    (r'^messages/from/(?P<sender>.+)/to/(?P<recipient>.+)$', messages),
+prefix = r'^cryptoserv/' if DEBUG else r'^'
 
-    # Example:
-    # (r'^server/', include('server.foo.urls')),
+urlpatterns = patterns(
+    '',
+    (prefix + r'users/$', all_users),
+    (prefix + r'users/(?P<name>.+)$', one_user),
+    (prefix + r'messages/$', messages),
+    (prefix + r'messages/to/(?P<recipient>.+)$', messages),
+    (prefix + r'messages/from/(?P<sender>.+)/to/(?P<recipient>.+)$', messages),
+    )
 
-    # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
-    # to INSTALLED_APPS to enable admin documentation:
-    # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
-    # (r'^admin/', include(admin.site.urls)),
-)
+if DEBUG:
+    root = join(dirname(dirname(realpath(__file__))), 'client')
+    urlpatterns += patterns(
+        '',
+        (r'^cryptodemo/(?P<path>.*)$', serve,
+         {'document_root': root, 'show_indexes': True}),
+        )
