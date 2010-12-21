@@ -263,7 +263,7 @@ function showMessages(e) {
             $("#message"+i+" .fromHeader span").text(m.sender)
             $("#message"+i+" .toHeader span").text(m.recipient)
             $("#message"+i+" .dateHeader span").text(m.date)
-            $("#message"+i+" .messageBody pre").text(m.text)
+            $("#message"+i+" .messageBody .text").text(m.text)
             $("#message"+i+" .decryptLink").click(decryptMessage).
                 attr('id', 'decryptLink'+i)
             $("#message"+i+" .undoLink").click(restoreMessage).
@@ -274,7 +274,7 @@ function showMessages(e) {
 
 function decryptMessage(e) {
     var i = e.target.id.replace(/decryptLink/, '')
-    var t = $("#message"+i+" .messageBody pre.text")
+    var t = $("#message"+i+" .messageBody .display")
     var priv = $.parseJSON($("#privateKeyObscure").val())
     if(!priv) {
         $("#message"+i+" .decryptResult").removeClass("okay").
@@ -290,8 +290,8 @@ function decryptMessage(e) {
 
 function restoreMessage(e) {
     var i = e.target.id.replace(/undoLink/, '')
-    $("#message"+i+" .messageBody pre.text").
-        text($("#message"+i+" .messageBody pre.backup").text())
+    $("#message"+i+" .messageBody .display").
+        text($("#message"+i+" .messageBody .backup").text())
     $("#message"+i+" .decryptLink").show()
     $("#message"+i+" .undoLink").hide()
 }

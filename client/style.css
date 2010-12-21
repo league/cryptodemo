@@ -108,7 +108,7 @@ a:visited { color: #606; }
 .messageButtons span:hover {
     cursor: pointer;
 }
-.messageBody pre, .decryptResult {
+.messageBody .text, .decryptResult {
     margin: 1ex 0 1ex 150px;
 }
 .message {
