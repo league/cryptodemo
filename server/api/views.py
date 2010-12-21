@@ -3,6 +3,10 @@
 from server.api.models import User, Message
 from django.http import *
 import simplejson as json
+from datetime import datetime, timedelta
+
+DAYS_TO_KEEP = 30
+USER_TO_KEEP = 'Crypto Bot'
 
 def j(data):
     return json.dumps(data, ensure_ascii=False)
@@ -55,3 +59,19 @@ def send_message(request, sender, recipient):
         return ok(j(True))
     except User.DoesNotExist:
         return r(404, j('Sender or recipient not found'))
+
+def cron(request):
+    expiry_date = datetime.now() - timedelta(DAYS_TO_KEEP)
+    expired_users = User.objects.filter(timestamp__lt = expiry_date)
+    expired_users = expired_users.exclude(name = USER_TO_KEEP)
+    message_count = 0
+    for u in expired_users:
+        message_count += delete_with_count(u.inbox.all())
+        message_count += delete_with_count(u.outbox.all())
+    user_count = delete_with_count(expired_users)
+    return ok(j((user_count, message_count)))
+
+def delete_with_count(query_set):
+    count = len(query_set)
+    query_set.delete()
+    return count

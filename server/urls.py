@@ -17,6 +17,7 @@ urlpatterns = patterns(
     (prefix + r'messages/$', messages),
     (prefix + r'messages/to/(?P<recipient>.+)$', messages),
     (prefix + r'messages/from/(?P<sender>.+)/to/(?P<recipient>.+)$', messages),
+    (prefix + r'cron/$', cron),
     )
 
 if DEBUG:
