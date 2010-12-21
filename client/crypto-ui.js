@@ -106,6 +106,7 @@ function entropyHooks() {
     $(document).keydown({kind: 'keydown'}, gatherEntropy)
     $(document).keyup({kind: 'keyup'}, gatherEntropy)
     $(document).mousemove({kind: 'mousemove'}, gatherEntropy)
+    $(document).bind('touchmove', {kind: 'touchmove'}, gatherEntropy)
 }
 
 function gatherEntropy(e){

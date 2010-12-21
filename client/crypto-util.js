@@ -636,6 +636,12 @@ function randJS(n) {
 
 function eventEntropy(e) {
     if(!poolFull()) {
+        if(e.originalEvent.touches && e.originalEvent.touches.length) {
+            e = e.originalEvent.touches[0];
+        } else if(e.originalEvent.changedTouches && e.originalEvent.changedTouches.length) {
+            e = e.originalEvent.changedTouches[0];
+        }
+
         var x = e.clientX || e.screenX || e.pageX || 1
         var y = e.clientY || e.screenY || e.pageY || 1
         var t = new Date().getTime()
