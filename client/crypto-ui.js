@@ -192,13 +192,13 @@ function initializeSendForm() {
 
 function loadRecipients() {
     $.getJSON("/cryptoserv/users/", function(users){
-        var prompt = $("#recipient option:first-child").detach()
         $("#recipient option").remove()
-        $("#recipient").append(prompt)
+        var opts = '<option value="">Select recipient</option>'
         $.each(users, function(i,u) {
-            $("#recipient").append(prompt.clone().attr("value", u).text(u))
+            opts += '<option value="'+u+'">'+u+'</option>'
         })
-            })
+        $("#recipient").append(opts)
+    })
 }
 
 function maybeEnableSend() {
