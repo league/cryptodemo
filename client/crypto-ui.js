@@ -44,7 +44,6 @@ $(document).ready(function(){
     $("#poolRemaining").text(poolRemaining())
     $("#readLink").click(initializeReader)
     $("#recipient").change(maybeEnableSend)
-    $("#recipient").focus(loadRecipients)
     $("#sendButton").click(sendMessage)
     $("#sendLink").click(initializeSendForm)
     $("#userName").keyup(validateUserName)
@@ -188,6 +187,7 @@ function initializeSendForm() {
     $("#sendButton").attr('disabled', true)
     $("#sendResult").hide()
     $("#encryptOption").attr('checked', true)
+    loadRecipients()
 }
 
 function loadRecipients() {
