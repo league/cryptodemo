@@ -41,6 +41,7 @@ $(document).ready(function(){
     $("#generateKey").attr("disabled", true)
     $("#generateKey").click(generateKeyUI)
     $("#inboxLink").click(showMessages)
+    $("#loginButton").click(attemptLogin)
     $("#loginLink").click(initializeLoginForm)
     $("#loginName").change(maybeEnableLogin)
     $("#poolRemaining").text(poolRemaining())
@@ -213,6 +214,18 @@ function loadRecipients(target, name) {
             opts += '<option value="'+u+'">'+u+'</option>'
         })
         $(target).append(opts)
+    })
+}
+
+function attemptLogin() {
+    var token = textToBase64("3fcebao09g")
+    $("#loginWait").show(function() {
+        $("#loginResult").append("Attempting to sign "+token).show(function(){
+            var priv = $.parseJSON($("#privateKeyObscure").val())
+            $("#loginResult").append("<p>With: "+priv.d)
+            var m = rsaDecode([priv.d, priv.p, priv.q], token)
+            $("#loginResult").append("<p>Got: "+m)
+        })
     })
 }
 
