@@ -24,8 +24,14 @@
 var userNameOk = false
 var messageTemplate = null
 var zclip = null
+var textMax = 1024
 
 $(document).ready(function(){
+    $.getJSON("/cryptoserv/limits/", function(limits) {
+        textMax = limits.TEXT / 2
+        $("#userName").attr('maxlength', limits.USERNAME)
+        $("#draftLimit").text(textMax)
+    })
     ZeroClipboard.setMoviePath('zeroclipboard/ZeroClipboard.swf')
     zclip = new ZeroClipboard.Client()
     zclip.glue("copyPrivateKey", "zclipContainer")
@@ -37,7 +43,7 @@ $(document).ready(function(){
     })
     $("#allMessageLink").click(showMessages)
     $("#copyPrivateKey").attr("disabled", true)
-    $("#draft").keyup(maybeEnableSend)
+    $("#draft").keyup(draftKeyHandler)
     $("#generateKey").attr("disabled", true)
     $("#generateKey").click(generateKeyUI)
     $("#inboxLink").click(showMessages)
@@ -52,6 +58,7 @@ $(document).ready(function(){
     synchronizePrivateKeyInputs()
     validateUserName() // in case it's pre-populated on reload
     messageTemplate = $("#messageList .message:first-child").detach()
+
 })
 
 /* Need two sychronized input boxes, so we can reveal private key.
@@ -188,6 +195,7 @@ function initializeSendForm() {
     $("#sendButton").attr('disabled', true)
     $("#sendResult").hide()
     $("#encryptOption").attr('checked', true)
+    $("#draftLimit").text(textMax)
     loadRecipients()
 }
 
@@ -202,9 +210,18 @@ function loadRecipients() {
     })
 }
 
+function draftKeyHandler() {
+    var r = textMax - $("#draft").val().length
+    $("#draftLimit").text(textMax - $("#draft").val().length).
+        toggleClass("error", r < 0)
+    maybeEnableSend()
+}
+
 function maybeEnableSend() {
     $("#sendButton").attr('disabled',
-                          !$("#recipient").val() || !$("#draft").val())
+                          !$("#recipient").val() ||
+                          !$("#draft").val() ||
+                          $("#draft").val().length > textMax)
 }
 
 function sendMessage() {
