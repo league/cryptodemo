@@ -41,7 +41,11 @@ $(document).ready(function(){
     $("#generateKey").attr("disabled", true)
     $("#generateKey").click(generateKeyUI)
     $("#inboxLink").click(showMessages)
+    $("#loginLink").click(initializeLoginForm)
+    $("#loginName").change(maybeEnableLogin)
     $("#poolRemaining").text(poolRemaining())
+    $("#privateKeyClear").keyup(maybeEnableLogin)
+    $("#privateKeyObscure").keyup(maybeEnableLogin)
     $("#readLink").click(initializeReader)
     $("#recipient").change(maybeEnableSend)
     $("#sendButton").click(sendMessage)
@@ -62,7 +66,7 @@ function synchronizePrivateKeyInputs() {
     $("#privateKeyObscure").val("")
 
     $("#privateKeyClear").change(function(){
-        $("#privateKeyObscure").val($(this).val())
+        $("#privateKeyObscure").val($(this).val()).change()
     })
 
     $("#privateKeyObscure").change(function(){
@@ -188,17 +192,27 @@ function initializeSendForm() {
     $("#sendButton").attr('disabled', true)
     $("#sendResult").hide()
     $("#encryptOption").attr('checked', true)
-    loadRecipients()
+    loadRecipients("#recipient", "recipient")
 }
 
-function loadRecipients() {
+function initializeLoginForm() {
+    loadRecipients("#loginName", "user")
+    $("#loginButton").attr('disabled', true)
+}
+
+function maybeEnableLogin() {
+    $("#loginButton").attr('disabled',
+                           !$("#loginName").val() || !$("#privateKeyObscure").val())
+}
+
+function loadRecipients(target, name) {
     $.getJSON("/cryptoserv/users/", function(users){
-        $("#recipient option").remove()
-        var opts = '<option value="">Select recipient</option>'
+        $(target+" option").remove()
+        var opts = '<option value="">Select '+name+'</option>'
         $.each(users, function(i,u) {
             opts += '<option value="'+u+'">'+u+'</option>'
         })
-        $("#recipient").append(opts)
+        $(target).append(opts)
     })
 }
 

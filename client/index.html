@@ -31,7 +31,7 @@
 
         <ul id="navbar">
           <li id="registerLink" class="selected enabled">Register</li>
-          <li id="loginLink" class="enabled hidden">Log in</li>
+          <li id="loginLink" class="enabled">Log in</li>
           <li id="sendLink">Send message</li>
           <li id="readLink">Read messages</li>
         </ul>
@@ -99,6 +99,16 @@
 
         <div id="loginPage" class="page hidden">
           <h2>Log in</h2>
+          <ol id="loginSteps" class="spaced">
+            <li>Choose <label for="loginName">your name:</label>
+              <select id="loginName" name="loginName">
+                <option value="">Select user</option>
+              </select>
+            </li>
+            <li>Paste your private key into the box in the lower
+              left.</li>
+            <li><input id="loginButton" type="button" value="Log in" /></li>
+          </ol>
         </div>
 
         <div id="sendPage" class="page hidden">
