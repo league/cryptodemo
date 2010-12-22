@@ -34,9 +34,19 @@ def get_user(request, name):
 
 def post_user(request, name):
     pk = request.raw_post_data
-    u, created = (User.objects.get_or_create
-                  (name=name, defaults={'public_key': pk}))
-    return ok(j(True)) if created else r(403, j('User already exists'))
+    if valid_public_key(pk):
+        u, created = (User.objects.get_or_create
+                      (name=name, defaults={'public_key': pk}))
+        return ok(j(True)) if created else r(403, j('User already exists'))
+    else:
+        return r(400, j('Invalid public key'))
+
+def valid_public_key(pk):
+    try:
+        pk = json.loads(pk)
+        return type(pk['pq'])==list and type(pk['e'])==list
+    except:
+        return False
 
 def messages(request, sender=None, recipient=None):
     if request.method == "POST":
