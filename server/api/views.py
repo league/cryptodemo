@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 DAYS_TO_KEEP = 30
 USER_TO_KEEP = 'Crypto Bot'
+MAX_MESSAGES = 50
 
 def j(data):
     return json.dumps(data, ensure_ascii=False)
@@ -45,7 +46,7 @@ def messages(request, sender=None, recipient=None):
         ms = ms.filter(sender__name = sender)
     if recipient:
         ms = ms.filter(recipient__name = recipient)
-    ms = ms.order_by('timestamp').reverse()[:5]
+    ms = ms.order_by('timestamp').reverse()[:MAX_MESSAGES]
     return ok(j([m.json() for m in ms]))
 
 def send_message(request, sender, recipient):
