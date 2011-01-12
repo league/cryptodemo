@@ -2,7 +2,7 @@
 
 from server.api.models import User, Message
 from django.http import *
-import simplejson as json
+import json
 from datetime import datetime, timedelta
 from server.settings import LIMITS
 
