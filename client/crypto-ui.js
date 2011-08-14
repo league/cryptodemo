@@ -27,10 +27,15 @@ var zclip = null
 var textMax = 1024
 
 $(document).ready(function(){
-    $.getJSON("/cryptoserv/limits/", function(limits) {
-        textMax = limits.TEXT / 2
-        $("#userName").attr('maxlength', limits.USERNAME)
-        $("#draftLimit").text(textMax)
+    $.ajax({
+        url: "/cryptoserv/limits/",
+        dataType: 'json',
+        success: function(limits) {
+            textMax = limits.TEXT / 2
+            $("#userName").attr('maxlength', limits.USERNAME)
+            $("#draftLimit").text(textMax)
+        },
+        error: serverNotResponding
     })
     ZeroClipboard.setMoviePath('zeroclipboard/ZeroClipboard.swf')
     zclip = new ZeroClipboard.Client()
@@ -60,6 +65,10 @@ $(document).ready(function(){
     messageTemplate = $("#messageList .message:first-child").detach()
 
 })
+
+function serverNotResponding(xhr, status, exn) {
+    $("#serverError").show()
+}
 
 /* Need two sychronized input boxes, so we can reveal private key.
    The obscured one will be canonical (used in calculations) so we
