@@ -66,7 +66,7 @@ $(document).ready(function(){
 
 })
 
-function serverNotResponding(xhr, status, exn) {
+function serverNotResponding(xhr) {
     $("#serverError").show()
 }
 
@@ -157,7 +157,10 @@ function validateUserName() {
                 userNameOk = false
                 maybeEnableGenerateKey()
             },
-            error: function(){
+            error: function(xhr){
+                if(xhr.status == 500) {
+                    serverNotResponding(xhr)
+                }
                 $("#nameCheck").text("OK").
                     removeClass("error").addClass("okay").show()
                 userNameOk = true
@@ -190,7 +193,8 @@ function generateKeyUI() {
                 $("#readLink").addClass("enabled")
                 $("#pleaseWait").hide()
             },
-            error: function() {
+            error: function(xhr) {
+                serverNotResponding(xhr)
                 $("generateResult").removeClass("okay").addClass("error").
                     text("Some error saving.").show()
             }})
