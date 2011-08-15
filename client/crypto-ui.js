@@ -172,7 +172,7 @@ function validateUserName() {
 function generateKeyUI() {
     $("#generateKey").attr("disabled", true)
     $("#pleaseWait").show(function() {
-        var r = generateKey($("#bits").val())
+        var r = generateKey(64)
         var priv = JSON.stringify(r.priv)
         var pub = JSON.stringify(r.pub)
         /* Now let's try to save it. */

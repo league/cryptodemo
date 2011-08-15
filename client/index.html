@@ -63,19 +63,10 @@
               <input type="text" id="userName"  />
               <span id="nameCheck" class="hidden okay">OK</span>
             </li>
-            <li>Move your mouse around to seed the random number
+            <li>Move your mouse (or finger) around to seed the random number
               generator.  You can stop moving when this number
               reaches zero → <b id="poolRemaining"></b>
             </li>
-            <li>Choose the size of your key:
-              <select id="bits">
-                <option value="32">32 bits</option>
-                <option value="64" selected="true">64 bits</option>
-                <option value="128">128 bits</option>
-                <option value="256">256 bits</option>
-              </select>
-              Larger keys are better, but can take much longer to
-              calculate.
             <li>
               <input type="button" id="generateKey" value="Generate Key"
                      disabled="true" />
@@ -84,11 +75,8 @@
               <span id="generateResult" class="okay hidden">Public key:</span>
               <input id="publicKey" type="text" class="publicKey hidden" />
             </li>
-            <li>
-              <div id="zclipContainer" style="position: relative; float: left">
-                <input id="copyPrivateKey" type="button" value="Copy"
-                />
-              </div>
+            <li id="zclipContainer">
+              <input id="copyPrivateKey" type="button" value="Copy" />
               the private key and store it someplace safe.  It cannot
               be retrieved or reset if you lose it.
             </li>
