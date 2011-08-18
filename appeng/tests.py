@@ -13,6 +13,13 @@ TESTS = [
 def simulateUrl(s):
     return '%%%02x%s' % (ord(s[0]), s[1:])
 
+def fakePublicKey():
+    k = uuid.uuid4().hex
+    d = {}
+    d['pq'] = [int(k[0:7], 16), int(k[7:14], 16)]
+    d['e'] = [int(k[14:21], 16), int(k[21:28], 16)]
+    return json.dumps(d)
+
 class ModelTests(unittest.TestCase):
     def testVacuous(self):
         self.assertEqual(2,2)
@@ -21,7 +28,7 @@ class ModelTests(unittest.TestCase):
 
     def testUserGet(self):
         n = uuid.uuid4().hex
-        u = User.create(n, 'hoo')
+        u = User.create(n, fakePublicKey())
         u.put()
         w = User.get(n)
         self.assertEqual(w.name, n)
@@ -34,8 +41,8 @@ class ModelTests(unittest.TestCase):
     def testUserGetOrCreate(self):
         n1 = uuid.uuid4().hex
         n2 = uuid.uuid4().hex
-        k1 = uuid.uuid4().hex
-        k2 = uuid.uuid4().hex
+        k1 = fakePublicKey()
+        k2 = fakePublicKey()
         u1, c1 = User.getOrCreate(n1, public_key=k1)
         self.assertTrue(c1)
         u2, c2 = User.getOrCreate(n1, public_key=k2)
@@ -58,7 +65,7 @@ class ViewTests(unittest.TestCase):
     def setUp(self):
         self.views = ViewBase()
         self.n1, self.n2 = uuid.uuid4().hex, uuid.uuid4().hex
-        self.k1, self.k2 = uuid.uuid4().hex, uuid.uuid4().hex
+        self.k1, self.k2 = fakePublicKey(), fakePublicKey()
         self.u1 = User.create(self.n1, self.k1)
         self.u2 = User.create(self.n2, self.k2)
         self.m1 = Message.create(self.u1, self.u2, 'u1->u2')
@@ -98,7 +105,7 @@ class ViewTests(unittest.TestCase):
         self.assertEqual(self.k2, result)
 
     def testPostUser(self):
-        n3, k3 = uuid.uuid4().hex, uuid.uuid4().hex
+        n3, k3 = uuid.uuid4().hex, fakePublicKey()
         status, result = self.views.postUser(n3, k3)
         self.assertEqual(200, status)
 

@@ -1,5 +1,19 @@
 from google.appengine.ext import db
 from settings import LIMITS
+import simplejson as json
+
+def semiValidPublicKey(s):
+    try:                        # Lots of reasons this can fail:
+        d = json.loads(s)       # Not valid JSON
+        assert(len(d['pq'])>0)  # KeyError 'pq', or not a list
+        for n in d['pq']:
+            assert(type(n) == int)
+        assert(len(d['e'])>0)   # KeyError 'pq', or not a list
+        for n in d['e']:
+            assert(type(n) == int)
+        return True
+    except:
+        return False
 
 class User(db.Model):
     name = db.StringProperty()
@@ -14,6 +28,7 @@ class User(db.Model):
     def create(name, public_key):
         assert(len(name) < LIMITS['USERNAME'])
         assert(len(public_key) < LIMITS['KEY'])
+        assert(semiValidPublicKey(public_key))
         k = User.keyOf(name)
         u = User(key=k, name=name, public_key=public_key)
         u.put()
