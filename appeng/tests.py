@@ -157,6 +157,26 @@ class ViewTests(unittest.TestCase):
         self.assertEqual(self.u1.name, ms[0]['sender'])
         self.assertEqual(self.u2.name, ms[0]['recipient'])
 
+    def testGetAllMessagesLimit(self):
+        n3, k3 = uuid.uuid4().hex, fakePublicKey()
+        u3 = User.create(n3, k3)
+        ms = [Message.create(u3, u3, uuid.uuid4().hex)
+              for i in range(LIMITS['MESSAGES']+1)]
+        status, result = views.getAllMessages()
+        self.assertEqual(200, status)
+        ms1 = json.loads(result)
+        self.assertEqual(LIMITS['MESSAGES'], len(ms1))
+
+        status, result = views.getMyMessages(n3)
+        self.assertEqual(200, status)
+        ms2 = json.loads(result)
+        self.assertEqual(LIMITS['MESSAGES'], len(ms2))
+
+        # Clean up
+        for m in ms:
+            m.delete()
+        u3.delete()
+
     def testGetMyMessages(self):
         status, result = views.getMyMessages(self.n1)
         self.assertEqual(200, status)
@@ -180,10 +200,20 @@ class ViewTests(unittest.TestCase):
         status, result = views.postMessage(self.n2, simulateUrl(self.n1), '2==>1')
         self.assertEqual(200, status)
         ms = Message.all().order('-timestamp')
+        # Race condition: assume nobody else is posting messages!
         self.assertEqual('2==>1', ms[0].text)
         self.assertEqual(self.n2, ms[0].sender.name)
         self.assertEqual(self.n1, ms[0].recipient.name)
         ms[0].delete()
+
+        # Message too long
+        status, result = views.postMessage(self.n2, self.n1,
+                                           '?' * (LIMITS['TEXT']+1))
+        self.assertEqual(400, status)
+
+        # User doesn't exist
+        status, result = views.postMessage(self.n1, uuid.uuid4().hex, '??')
+        self.assertEqual(404, status)
 
 class TestPage(webapp.RequestHandler):
     def get(self):

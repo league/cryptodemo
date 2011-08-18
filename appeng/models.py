@@ -62,6 +62,7 @@ class Message(db.Model):
 
     @staticmethod
     def create(sender, recipient, text):
+        assert(len(text) <= LIMITS['TEXT'])
         m = Message(sender=sender, recipient=recipient, text=text)
         m.put()
         return m

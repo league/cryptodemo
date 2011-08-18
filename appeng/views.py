@@ -36,17 +36,22 @@ def postUser(name, public_key):
     else:
         return 403, js('User already exists')
 
+def messageList(q):
+    return [m.json() for m in q.order('-timestamp').fetch(LIMITS['MESSAGES'])]
+
 def getAllMessages():
-    return 200, js([m.json() for m in Message.all().order('-timestamp')])
+    return 200, js(messageList(Message.all()))
 
 def getMyMessages(name):
     u = User.get(urllib.unquote(name))
     if u is None:
         return 404, js(False)
     else:
-        return 200, js([m.json() for m in u.inbox.order('-timestamp')])
+        return 200, js(messageList(u.inbox))
 
 def postMessage(sender, recipient, text):
+    if len(text) > LIMITS['TEXT']:
+        return 400, 'Text too long'
     sender = User.get(urllib.unquote(sender))
     recipient = User.get(urllib.unquote(recipient))
     if(sender is None or recipient is None):
