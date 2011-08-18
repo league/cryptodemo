@@ -34,6 +34,7 @@ $(document).ready(function(){
             textMax = limits.TEXT / 2
             $("#userName").attr('maxlength', limits.USERNAME)
             $("#draftLimit").text(textMax)
+            $("#expireDays").text(limits.DAYS)
         },
         error: serverNotResponding
     })
