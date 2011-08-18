@@ -1,6 +1,6 @@
 /* crypto-util.js -- randomness, primes, and crypto utilities in javascript
  *
- * Copyright (c) 2010 Christopher League
+ * Copyright (c) 2010-2011 Christopher League
  * http://contrapunctus.net/
  *
  * Portions copyright (c) 2009 Jacob Christian Munch-Andersen

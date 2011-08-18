@@ -1,6 +1,6 @@
 /* crypto-ui.js -- public key cryptography demo -- user interface
  *
- * Copyright (c) 2010 Christopher League
+ * Copyright (c) 2010-2011 Christopher League
  * http://contrapunctus.net/
  *
  * Portions copyright (c) 2009 Jacob Christian Munch-Andersen
