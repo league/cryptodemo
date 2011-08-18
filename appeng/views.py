@@ -1,7 +1,7 @@
 from google.appengine.ext import webapp
 from models import User, Message
 from settings import LIMITS
-import json
+import simplejson as json
 import unittest
 import urllib
 import uuid
