@@ -42,10 +42,16 @@ class Message(db.Model):
     text = db.TextProperty()
 
     def json(self):
-        return {'sender': self.sender.pk,
-                'recipient': self.recipient.pk,
+        return {'sender': self.sender.name,
+                'recipient': self.recipient.name,
                 'date': str(self.timestamp),
                 'text': self.text}
+
+    @staticmethod
+    def create(sender, recipient, text):
+        m = Message(sender=sender, recipient=recipient, text=text)
+        m.put()
+        return m
 
 class ModelTests(unittest.TestCase):
     def testVacuous(self):

@@ -1,5 +1,4 @@
 from google.appengine.ext import webapp
-from views import txt
 import unittest
 import uuid
 
@@ -10,6 +9,6 @@ TESTS = [
 
 class TestPage(webapp.RequestHandler):
     def get(self):
-        txt(self.response)
+        self.response.headers['Content-Type'] = 'text/plain; charset=utf-8'
         suite = unittest.defaultTestLoader.loadTestsFromNames(TESTS)
         unittest.TextTestRunner(stream=self.response.out, verbosity=2).run(suite)
