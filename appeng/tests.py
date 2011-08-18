@@ -1,5 +1,6 @@
 from google.appengine.ext import webapp
-from models import User, Message
+from models import User, Message, semiValidPublicKey
+from settings import LIMITS
 import simplejson as json
 import unittest
 import uuid
@@ -117,10 +118,35 @@ class ViewTests(unittest.TestCase):
         n3, k3 = uuid.uuid4().hex, fakePublicKey()
         status, result = views.postUser(n3, k3)
         self.assertEqual(200, status)
+        User.get(n3).delete()
 
         status, result = views.postUser(simulateUrl(self.n1), k3)
         self.assertEqual(403, status)
         self.assertEqual(self.k1, User.get(self.n1).public_key)
+
+        # Public key too long
+        k3 ='{"pq":[%s0],"e":[17]}' % ('1,' * (LIMITS['KEY']/2 - 9))
+        assert semiValidPublicKey(k3), k3
+        assert(len(k3) > LIMITS['KEY'])
+        status, result = views.postUser(n3, k3)
+        self.assertEqual(400, status)
+        self.assertEqual(None, User.get(n3))
+
+        # Public key invalid
+        k3 = '{"pq":[3,4],"z":[9]}'
+        assert not semiValidPublicKey(k3), k3
+        status, result = views.postUser(n3, k3)
+        self.assertEqual(400, status)
+        self.assertEqual(None, User.get(n3))
+
+        # Username too long
+        n3 = uuid.uuid4().hex + ('?' * (LIMITS['USERNAME']-32+1))
+        k3 = fakePublicKey()
+        assert(len(n3) > LIMITS['USERNAME'])
+        status, result = views.postUser(n3, k3)
+        self.assertEqual(400, status)
+        self.assertEqual(None, User.get(n3))
+
 
     def testGetAllMessages(self):
         status, result = views.getAllMessages()

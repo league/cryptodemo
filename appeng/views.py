@@ -1,5 +1,5 @@
 from google.appengine.ext import webapp
-from models import User, Message
+from models import User, Message, semiValidPublicKey
 from settings import LIMITS
 import simplejson as json
 import urllib
@@ -23,6 +23,13 @@ def getOneUser(name):
         return 200, u.public_key # public_key is already JSON.
 
 def postUser(name, public_key):
+    name = urllib.unquote(name)
+    if len(name) > LIMITS['USERNAME']:
+        return 400, 'User name too long'
+    if len(public_key) > LIMITS['KEY']:
+        return 400, 'Key too long'
+    if not semiValidPublicKey(public_key):
+        return 400, 'Invalid key'
     u, created = User.getOrCreate(urllib.unquote(name), public_key)
     if created:
         return 200, js(True)

@@ -26,8 +26,8 @@ class User(db.Model):
 
     @staticmethod
     def create(name, public_key):
-        assert(len(name) < LIMITS['USERNAME'])
-        assert(len(public_key) < LIMITS['KEY'])
+        assert(len(name) <= LIMITS['USERNAME'])
+        assert(len(public_key) <= LIMITS['KEY'])
         assert(semiValidPublicKey(public_key))
         k = User.keyOf(name)
         u = User(key=k, name=name, public_key=public_key)
