@@ -1,9 +1,9 @@
 from google.appengine.ext import webapp
 from models import User, Message
-from views import ViewBase
 import simplejson as json
 import unittest
 import uuid
+import views
 
 TESTS = [
     'appeng.tests.ModelTests',
@@ -63,7 +63,6 @@ class ModelTests(unittest.TestCase):
 class ViewTests(unittest.TestCase):
 
     def setUp(self):
-        self.views = ViewBase()
         self.n1, self.n2 = uuid.uuid4().hex, uuid.uuid4().hex
         self.k1, self.k2 = fakePublicKey(), fakePublicKey()
         self.u1 = User.create(self.n1, self.k1)
@@ -79,8 +78,18 @@ class ViewTests(unittest.TestCase):
         self.m2.delete()
         self.m3.delete()
 
+    def testGetLimits(self):
+        status, result = views.getLimits()
+        self.assertEqual(200, status)
+        d = json.loads(result)
+        self.assertTrue(d.has_key('USERNAME') and type(d['USERNAME']) == int)
+        self.assertTrue(d.has_key('KEY') and type(d['KEY']) == int)
+        self.assertTrue(d.has_key('TEXT') and type(d['TEXT']) == int)
+        self.assertTrue(d.has_key('MESSAGES') and type(d['MESSAGES']) == int)
+        self.assertTrue(d.has_key('DAYS') and type(d['DAYS']) == int)
+
     def testGetAllUsers(self):
-        status, result = self.views.getAllUsers()
+        status, result = views.getAllUsers()
         self.assertEqual(200, status)
         users = json.loads(result)
         found = 0
@@ -91,30 +100,30 @@ class ViewTests(unittest.TestCase):
         self.assertEqual(2, found)
 
     def testGetOneUser(self):
-        status, result = self.views.getOneUser(self.n1)
+        status, result = views.getOneUser(self.n1)
         self.assertEqual(200, status)
         self.assertEqual(self.k1, result)
 
         n3 = uuid.uuid4().hex
-        status, result = self.views.getOneUser(n3)
+        status, result = views.getOneUser(n3)
         self.assertEqual(404, status)
         self.assertEqual(False, json.loads(result))
 
-        status, result = self.views.getOneUser(simulateUrl(self.n2))
+        status, result = views.getOneUser(simulateUrl(self.n2))
         self.assertEqual(200, status)
         self.assertEqual(self.k2, result)
 
     def testPostUser(self):
         n3, k3 = uuid.uuid4().hex, fakePublicKey()
-        status, result = self.views.postUser(n3, k3)
+        status, result = views.postUser(n3, k3)
         self.assertEqual(200, status)
 
-        status, result = self.views.postUser(simulateUrl(self.n1), k3)
+        status, result = views.postUser(simulateUrl(self.n1), k3)
         self.assertEqual(403, status)
         self.assertEqual(self.k1, User.get(self.n1).public_key)
 
     def testGetAllMessages(self):
-        status, result = self.views.getAllMessages()
+        status, result = views.getAllMessages()
         self.assertEqual(200, status)
         ms = json.loads(result)
         self.assertEqual(3, len(ms))
@@ -123,14 +132,14 @@ class ViewTests(unittest.TestCase):
         self.assertEqual(self.u2.name, ms[0]['recipient'])
 
     def testGetMyMessages(self):
-        status, result = self.views.getMyMessages(self.n1)
+        status, result = views.getMyMessages(self.n1)
         self.assertEqual(200, status)
         ms1 = json.loads(result)
         self.assertEqual(1, len(ms1))
         self.assertEqual(self.n1, ms1[0]['recipient'])
         self.assertEqual(self.n2, ms1[0]['sender'])
 
-        status, result = self.views.getMyMessages(self.n2)
+        status, result = views.getMyMessages(self.n2)
         self.assertEqual(200, status)
         ms2 = json.loads(result)
         self.assertEqual(2, len(ms2))
@@ -138,13 +147,11 @@ class ViewTests(unittest.TestCase):
             self.assertEqual(self.n2, m['recipient'])
             self.assertEqual(self.n1, m['sender'])
 
-        status, result = self.views.getMyMessages(uuid.uuid4().hex)
+        status, result = views.getMyMessages(uuid.uuid4().hex)
         self.assertEqual(404, status)
 
     def testPostMessage(self):
-        status, result = self.views.postMessage(self.n2,
-                                                simulateUrl(self.n1),
-                                                '2==>1')
+        status, result = views.postMessage(self.n2, simulateUrl(self.n1), '2==>1')
         self.assertEqual(200, status)
         ms = Message.all().order('-timestamp')
         self.assertEqual('2==>1', ms[0].text)
