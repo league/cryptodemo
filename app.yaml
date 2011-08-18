@@ -4,5 +4,14 @@ runtime: python
 api_version: 1
 
 handlers:
-- url: /.*
+- url: /cryptoserv/(.*)
   script: appeng/main.py
+
+- url: /
+  static_files: client/index.html
+  upload: client/index.html
+
+- url: /(.+)
+  static_files: client/\1
+  upload: client/(.*)
+

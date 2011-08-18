@@ -1,5 +1,6 @@
 from google.appengine.ext import webapp
 from models import User, Message
+from settings import LIMITS
 import json
 import unittest
 import urllib
@@ -21,8 +22,8 @@ class ViewBase(webapp.RequestHandler):
         u = User.get(urllib.unquote(name))
         if u is None:
             return 404, js(False)
-        else:
-            return 200, js(u.public_key)
+        else: # public_key already javascript
+            return 200, u.public_key
 
     def postUser(self, name, public_key):
         u, created = User.getOrCreate(urllib.unquote(name), public_key)
@@ -174,13 +175,19 @@ class SendMessage(ViewBase):
         status, result = self.postMessage(sender, recipient, self.request.body)
         self.respond(status, result)
 
+class Limits(ViewBase):
+    def get(self):
+        self.respond(200, js(LIMITS))
+
+
 import tests
 ROUTES = [
-    ('/users/', AllUsers),
-    ('/users/(.+)', OneUser),
-    ('/messages/', AllMessages),
-    ('/messages/to/(.+)', MyMessages),
-    ('/messages/from/(.+)/to/(.+)', SendMessage),
-    ('/tests/', tests.TestPage),
+    ('/cryptoserv/limits/', Limits),
+    ('/cryptoserv/users/', AllUsers),
+    ('/cryptoserv/users/(.+)', OneUser),
+    ('/cryptoserv/messages/', AllMessages),
+    ('/cryptoserv/messages/to/(.+)', MyMessages),
+    ('/cryptoserv/messages/from/(.+)/to/(.+)', SendMessage),
+    ('/cryptoserv/tests/', tests.TestPage),
     ]
 
