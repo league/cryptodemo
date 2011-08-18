@@ -58,6 +58,7 @@ $(document).ready(function(){
     $("#sendButton").click(sendMessage)
     $("#sendLink").click(initializeSendForm)
     $("#userName").keyup(validateUserName)
+    $("#userName").keyup(maybeEnableMessages)
     entropyHooks()
     initializePaging()
     synchronizePrivateKeyInputs()
@@ -76,6 +77,9 @@ function serverNotResponding(xhr) {
 function synchronizePrivateKeyInputs() {
     $("#privateKeyClear").val("")
     $("#privateKeyObscure").val("")
+
+    $("#privateKeyClear").keyup(maybeEnableMessages)
+    $("#privateKeyObscure").keyup(maybeEnableMessages)
 
     $("#privateKeyClear").change(function(){
         $("#privateKeyObscure").val($(this).val())
@@ -189,8 +193,7 @@ function generateKeyUI() {
                 $("#generateResult").removeClass("error").addClass("okay").
                     text("Saved public key:").show()
                 $("#copyPrivateKey").attr("disabled", false)
-                $("#sendLink").addClass("enabled")
-                $("#readLink").addClass("enabled")
+                maybeEnableMessages()
                 $("#pleaseWait").hide()
             },
             error: function(xhr) {
@@ -235,6 +238,13 @@ function maybeEnableSend() {
                           !$("#recipient").val() ||
                           !$("#draft").val() ||
                           $("#draft").val().length > textMax)
+}
+
+function maybeEnableMessages() {
+    if($("#privateKeyObscure").val() && $("#userName").val()) {
+        $("#sendLink").addClass('enabled')
+        $("#readLink").addClass('enabled')
+    }
 }
 
 function sendMessage() {
