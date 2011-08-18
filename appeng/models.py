@@ -1,7 +1,5 @@
 from google.appengine.ext import db
 from settings import LIMITS
-import unittest
-import uuid
 
 class User(db.Model):
     name = db.StringProperty()
@@ -53,42 +51,3 @@ class Message(db.Model):
         m.put()
         return m
 
-class ModelTests(unittest.TestCase):
-    def testVacuous(self):
-        self.assertEqual(2,2)
-    def aTestFailure(self):
-        self.assertEqual(2,3)
-
-    def testUserGet(self):
-        n = uuid.uuid4().hex
-        u = User.create(n, 'hoo')
-        u.put()
-        w = User.get(n)
-        self.assertEqual(w.name, n)
-        self.assertEqual(u.public_key, w.public_key)
-        self.assertEqual(u.timestamp, w.timestamp)
-        u.delete()
-        x = User.get(n)
-        self.assertEqual(None, x)
-
-    def testUserGetOrCreate(self):
-        n1 = uuid.uuid4().hex
-        n2 = uuid.uuid4().hex
-        k1 = uuid.uuid4().hex
-        k2 = uuid.uuid4().hex
-        u1, c1 = User.getOrCreate(n1, public_key=k1)
-        self.assertTrue(c1)
-        u2, c2 = User.getOrCreate(n1, public_key=k2)
-        # u2 should be same as u1, and ignore k2
-        self.assertFalse(c2)
-        self.assertEqual(u1.name, u2.name)
-        self.assertEqual(u1.public_key, u2.public_key)
-        self.assertEqual(u1.timestamp, u2.timestamp)
-        u1.delete()
-        # now n1 can be new.
-        u3, c3 = User.getOrCreate(n1, public_key=k2)
-        self.assertTrue(c3)
-        self.assertEqual(k2, u3.public_key)
-        u4 = User.get(n1)
-        self.assertEqual(k2, u4.public_key)
-        u4.delete()
