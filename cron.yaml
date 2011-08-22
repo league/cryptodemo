@@ -1,0 +1,4 @@
+cron:
+- description: daily cleanup
+  url: /cryptoserv/cron/
+  schedule: every day 01:00

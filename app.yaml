@@ -1,9 +1,13 @@
 application: cryptodemo-liucs
-version: 3
+version: 4
 runtime: python
 api_version: 1
 
 handlers:
+- url: /cryptoserv/cron/
+  script: appeng/main.py
+  login: admin
+
 - url: /cryptoserv/(.*)
   script: appeng/main.py
 

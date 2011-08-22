@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from google.appengine.ext import webapp
 from models import User, Message, semiValidPublicKey
 from settings import LIMITS
@@ -214,6 +215,27 @@ class ViewTests(unittest.TestCase):
         # User doesn't exist
         status, result = views.postMessage(self.n1, uuid.uuid4().hex, '??')
         self.assertEqual(404, status)
+
+    def testCron(self):
+        n3 = uuid.uuid4().hex
+        u3 = User.create(n3, fakePublicKey())
+        u3.timestamp = datetime.now() - timedelta(LIMITS['DAYS']+1)
+        u3.put()                # Pretend u3 is old.
+        u4 = User.create(uuid.uuid4().hex, fakePublicKey())
+        m34 = Message.create(u3, u4, 'one')
+        m43 = Message.create(u4, u3, 'two')
+        self.assertEqual(1, len([m for m in u4.inbox]))
+        self.assertEqual(1, len([m for m in u4.outbox]))
+        status, result = views.cron()            # Should delete u4 and both messages.
+        self.assertEqual(200, status)
+        nu, nm = json.loads(result)
+        self.assertEqual(1, nu)
+        self.assertEqual(2, nm)
+        self.assertEqual(0, len([m for m in u4.inbox]))
+        self.assertEqual(0, len([m for m in u4.outbox]))
+        self.assertEqual(None, User.get(n3))
+        self.assertEqual(u4.public_key, User.get(u4.name).public_key)
+        u4.delete()
 
 class TestPage(webapp.RequestHandler):
     def get(self):

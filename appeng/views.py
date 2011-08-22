@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from google.appengine.ext import webapp
 from models import User, Message, semiValidPublicKey
 from settings import LIMITS
@@ -8,6 +9,20 @@ def js(data):
     return json.dumps(data, ensure_ascii=False)
 
 # View functions return a pair: status code, JSON representation.
+
+def cron():
+    expiry_date = datetime.now() - timedelta(LIMITS['DAYS'])
+    nu, nm = 0, 0
+    for u in User.all().filter('timestamp <', expiry_date):
+        for m in u.inbox:
+            m.delete()
+            nm += 1
+        for m in u.outbox:
+            m.delete()
+            nm += 1
+        u.delete()
+        nu += 1
+    return 200, js((nu,nm))
 
 def getLimits():
     return 200, js(LIMITS)
@@ -68,6 +83,10 @@ class ViewBase(webapp.RequestHandler):
         self.response.headers['Content-Type'] = 'text/plain; charset=utf-8'
         self.response.out.write(result)
 
+class Cron(ViewBase):
+    def get(self):
+        self.respond(cron())
+
 class Limits(ViewBase):
     def get(self):
         self.respond(getLimits())
@@ -96,6 +115,7 @@ class SendMessage(ViewBase):
         self.respond(postMessage(sender, recipient, self.request.body))
 
 ROUTES = [
+    ('/cryptoserv/cron/', Cron),
     ('/cryptoserv/limits/', Limits),
     ('/cryptoserv/users/', AllUsers),
     ('/cryptoserv/users/(.+)', OneUser),
