@@ -1,0 +1,18 @@
+Cryptodemo is a simple web app to illustrate public-key cryptography.
+
+It lives at http://cryptodemo-liucs.appspot.com/
+
+
+Portions copyright ©2010 – 2011 by Christopher League,
+©2009 by Jacob Christian Munch-Andersen, and
+©2000 by John M Hanna.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or (at
+your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+without any warranty; without even the implied warranty of
+merchantability or fitness for a particular purpose. See the GNU
+General Public License for more details.
